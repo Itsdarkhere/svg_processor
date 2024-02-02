@@ -1,7 +1,5 @@
-'use client'
 import React, { createContext, useContext, useRef, useState } from 'react';
-import { ZoomLevel } from './ZoomLevel';
-import '../SeatMap/seatMap.scss'
+import '../SeatMap3/seatMap.scss'
 
 // Create the context
 export const ActionsContext = createContext(undefined);
@@ -18,15 +16,14 @@ export const useActions = () => {
 export const ActionsProvider = ({ children }) => {
     const svgRef = useRef(null);
     const zoomRef = useRef(null);
+    const mapRef = useRef(null);
+    const [activeMapAction, setActiveMapAction] = useState(3);
     const [scale, setScale] = useState(1);
 
     return (
-        <ActionsContext.Provider value={{ svgRef, setScale, zoomRef }}>
-            <div id="map">
+        <ActionsContext.Provider value={{ svgRef, setScale, zoomRef, activeMapAction }}>
+            <div id="mappp" ref={mapRef}>
                 {children}
-                <div className='controls-container'>
-                    <ZoomLevel zoomRef={zoomRef} scale={scale} />
-                </div>
             </div>
         </ActionsContext.Provider>
     );

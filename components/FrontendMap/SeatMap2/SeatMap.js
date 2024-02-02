@@ -1,6 +1,6 @@
 'use client'
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import { useActions } from "../ActionsProvider/ActionsProvider";
+import { useActions } from "../ActionsProvider2/ActionsProvider";
 import { Sections } from "./Sections";
 // import map from "./map.svg"
 export default function SeatMap({

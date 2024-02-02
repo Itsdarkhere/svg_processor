@@ -17,7 +17,7 @@ export const useActions = () => {
 }
 
 // Create the provider component
-export const ActionsProvider = ({ children, data, setData, activeTab }) => {
+export const ActionsProvider = ({ children, data, setData, activeTab, hideAll = false }) => {
     const svgRef = useRef(null);
     const zoomRef = useRef(null);
     const cursorRef = useRef(null);
@@ -46,12 +46,13 @@ export const ActionsProvider = ({ children, data, setData, activeTab }) => {
         <ActionsContext.Provider value={{ svgRef, setScale, zoomRef, activeMapAction }}>
             <div id="mapp" ref={mapRef} className={`${activeMapAction === 4 && 'cursor-pointer'} ${dragging && 'indicate-drag'}`}>
                 {children}
+                {!hideAll && 
                 <div className='controls-container'>
                     {activeTab === 'scaling' && <SellOrder active={activeMapAction === 4} toolbarSelect={toolbarSelect} />}
                     <ZoomLevel zoomRef={zoomRef} scale={scale} />
-                </div>
-                <ToolBar activeMapAction={activeMapAction} toolbarSelect={toolbarSelect} />
-                {activeTab === 'scaling' && 
+                </div>}
+                {!hideAll && <ToolBar activeMapAction={activeMapAction} toolbarSelect={toolbarSelect} />}
+                {activeTab === 'scaling' && !hideAll && 
                     <DraggableSpot 
                         data={data}
                         setData={setData}

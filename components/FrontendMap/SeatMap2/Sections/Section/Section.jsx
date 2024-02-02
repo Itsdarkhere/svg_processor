@@ -20,7 +20,8 @@ export default function Section({ section, data}) {
                 id={section.sectionId}
                 strokeWidth={section?.strokeWidth}
                 onClick={() => toggleSection(section)}
-                fill={selected ? '#3E8BF7' : '#E6E8EC'} stroke={selected ? '#3E8BF7' : '#B1B5C4'}
+                stroke={selected ? '#3E8BF7' : '#B1B5C4'}
+                fill={selected ? '#3E8BF7' : '#E6E8EC'}
                 className={`path`}
             >
             </path>

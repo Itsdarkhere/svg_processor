@@ -93,7 +93,7 @@ export default function Home() {
         {step === 1 && <Confirm result={result} />}
         {step === 2 && <InspectFrontendMap result={result} setResult={setResult} />}
         {step === 3 && <InspectAdminMap result={result} setResult={setResult} />}
-        {step === 4 && <Screenshot />}
+        {step === 4 && <Screenshot result={result} setResult={setResult} />}
       </div>
 
       <div className=' flex justify-end items-center fixed left-0 bottom-0 right-0 bg-neutral-800 py-6 px-10'>
