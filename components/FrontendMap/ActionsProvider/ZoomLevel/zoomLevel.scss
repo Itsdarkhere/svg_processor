@@ -1,0 +1,36 @@
+
+.zoomContainer {
+	box-sizing: border-box;
+	/* Auto layout */
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	// padding: rem(8);
+	// gap: rem(8);
+	width: 120px;
+	height: 40px;
+	background: rgba(252, 252, 253, 1);
+	/* Neutrals/8 */
+	border: 1px solid white;
+	box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.08);
+	border-radius: 10px;
+	transform: rotate(-0.55deg);
+	div {
+		color: black;
+	}
+}
+.zoomButton {
+	width: 24px;
+	height: 24px;
+	transform: rotate(-0.55deg);
+	/* Inside auto layout */
+	flex: none;
+	order: 0;
+	flex-grow: 0;
+	padding: 0;
+	border: none;
+	outline: none;
+	background-color: transparent;
+	color: black;
+}

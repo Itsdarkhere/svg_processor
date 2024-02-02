@@ -1,0 +1,61 @@
+#map {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	overflow: hidden;
+	transition: all 0.2s ease;
+	padding: 24px;
+	padding-bottom: 65px;
+	position: relative;
+	border: 2px solid #E5E6EE;
+	background-color: #f4f5f6;
+	border-radius: 8px;
+
+	&.cursor-pointer {
+		cursor: pointer;
+	}
+	.polygons {
+		cursor: pointer;
+	}
+	.map_svg {
+		width: 100%;
+        height: 100%;
+        background-position-x: center;
+        background-position-y: center;
+        background-size: contain;
+        background-repeat: no-repeat;
+	}
+
+	.path-text {
+		pointer-events: none;
+	}
+	.cursor_auto {
+		cursor: auto;
+	}
+
+	.react-transform-component {
+		width: 100% !important;
+		height: 100% !important;
+	}
+
+	.react-transform-wrapper {
+		// width: 100% !important;
+		overflow: visible !important;
+		margin-left: auto;
+		margin-right: auto;
+		height: 100% !important;
+	}
+
+	.controls-container {
+
+		> * {
+			position: absolute;
+			bottom: 20px;
+
+
+			&.zoomContainer {
+				right: var(--right-btn-position);
+			}
+		}
+	}
+}
