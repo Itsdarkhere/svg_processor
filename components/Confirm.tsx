@@ -21,7 +21,7 @@ export default function Confirm({ result }: { result: Data}) {
     }
 
     return (
-        <div className=" max-w-5xl flex flex-col justify-center items-center">
+        <div className=" w-full max-w-5xl flex flex-col justify-center items-center">
             <div className="w-full mt-6 p-5 bg-zinc-400 rounded-lg text-xl">
                 JSON condensed information
                 <p className=" text-sm">Should have correct amount of sections, rows, seats, the right colors etc </p>

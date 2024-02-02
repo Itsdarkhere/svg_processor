@@ -72,6 +72,7 @@ export default function SeatMap({
                     <Sections
                         data={data}
                         activeMapAction={activeMapAction}
+                        svgRef={svgRef}
                     />
                 </svg>
             </TransformComponent>
