@@ -1,12 +1,4 @@
 export default function ToolBar({ activeMapAction, toolbarSelect }) {
-
-    const tooltip = (text) => {
-        return (
-            <Tooltip>
-                {text}
-            </Tooltip>
-        )
-    }
     return (
         <div className="absolute right-10 top-10 flex flex-col bg-white rounded-md px-2">
             <button className={`p-3`} onClick={() => toolbarSelect(3)}>
