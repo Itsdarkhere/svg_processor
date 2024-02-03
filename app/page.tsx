@@ -1,5 +1,6 @@
 'use client'
 import Confirm from '@/components/Confirm';
+import Download from '@/components/Download';
 import InspectAdminMap from '@/components/InspectAdminMap';
 import InspectFrontendMap from '@/components/InspectFrontendMap';
 import Parser from '@/components/Parser';
@@ -11,22 +12,14 @@ const inter = Inter({ subsets: ['latin'] });
 export default function Home() {
   const [step, setStep] = useState(0);
   const [uploaded, setUploaded] = useState(false);
+  const [imagesTaken, setImagesTaken] = useState(false);
+  const [images, setImages] = useState<any>([]);
   const [fileName, setFileName] = useState<string>("");
   const [result, setResult] = useState<Data>({
     sections: {},
     rows: {},
     seats: {},
   });
-
-  const downloadJSON = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(result));
-    const downloadAnchorNode = document.createElement('a');
-    downloadAnchorNode.setAttribute("href", dataStr);
-    downloadAnchorNode.setAttribute("download", `${fileName}.json`);
-    document.body.appendChild(downloadAnchorNode); // required for firefox
-    downloadAnchorNode.click();
-    downloadAnchorNode.remove();
-  }
 
   const handleContinue = () => {
     const nextStep = step + 1;
@@ -48,7 +41,7 @@ export default function Home() {
       case 3:
         return !uploaded;
       case 4:
-        return true;
+        return !imagesTaken;
       default:
         return false;
     }
@@ -73,11 +66,9 @@ export default function Home() {
     }
   }
 
-  // MF data={data} setData={setData} />
-  // MC 
   return (
     <main className={`flex flex-col justify-start items-center bg-neutral-950 ${inter.className}`}>
-      <div className='flex justify-center bg-neutral-800 items-center py-8 fixed top-0 left-0 right-0 w-full'>
+      <div className='flex z-30  justify-center bg-neutral-800 items-center py-8 fixed top-0 left-0 right-0 w-full'>
         <ul className="steps">
           <li className={stepClass(0)}>Upload SVG</li>
           <li className={stepClass(1)}>Confirm</li>
@@ -93,10 +84,11 @@ export default function Home() {
         {step === 1 && <Confirm result={result} />}
         {step === 2 && <InspectFrontendMap result={result} setResult={setResult} />}
         {step === 3 && <InspectAdminMap result={result} setResult={setResult} />}
-        {step === 4 && <Screenshot result={result} setResult={setResult} />}
+        {step === 4 && <Screenshot result={result} images={images} setImages={setImages} imagesTaken={imagesTaken} setImagesTaken={setImagesTaken} />}
+        {step === 5 && <Download result={result} images={images} filename={fileName} />}
       </div>
 
-      <div className=' flex justify-end items-center fixed left-0 bottom-0 right-0 bg-neutral-800 py-6 px-10'>
+      <div className=' z-30 flex justify-end items-center fixed left-0 bottom-0 right-0 bg-neutral-800 py-6 px-10'>
         <button disabled={isContinueDisabled()} onClick={handleContinue} className="btn px-8 text-white btn-primary">{continueText()}</button>
       </div>
     </main>

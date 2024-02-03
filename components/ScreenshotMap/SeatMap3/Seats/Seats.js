@@ -3,14 +3,10 @@ import { Seat } from "./Seat";
 export default function Seats({ 
     data, 
     activeTab,
-    activeMapAction,  
 }) {
 
     // If hostspot show hotspot fill, otherwise show selected color or based on active tab
     const getFillType = (seat) => {
-        if (activeMapAction === 4 && activeTab === 'scaling') {
-            return seat?.hotspotFill;
-        }
         if (seat.selected) return 'blue';
         if (activeTab === 'scaling') {
             return "#e6e8ec";
@@ -30,7 +26,6 @@ export default function Seats({
                                 key={seat.seatId}
                                 seat={seat}
                                 fill={getFillType(seat)}
-                                activeMapAction={activeMapAction}
                             />
                         )
                     })}
@@ -38,7 +33,6 @@ export default function Seats({
                     {row?.path && (
                         <path
                             d={row.path}
-                            style={{ pointerEvents: activeMapAction === 2 ? "all" : "none", }}
                             fill='transparent'
                         />
                     )}
