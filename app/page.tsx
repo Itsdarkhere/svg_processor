@@ -43,7 +43,7 @@ export default function Home() {
       case 4:
         return !imagesTaken;
       default:
-        return false;
+        return true;
     }
   }
 
