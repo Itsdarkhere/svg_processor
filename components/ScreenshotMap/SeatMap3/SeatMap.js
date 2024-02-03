@@ -20,7 +20,7 @@ export default function SeatMap({
 
     const dwnld = () => {
         console.log("download")
-        htmlToImage.toPng(document.getElementById('primary-svg'))
+        htmlToImage.toPng(document.getElementById('mappp'))
         .then(function (dataUrl) {
             download(dataUrl, 'mappic.png');
         });
