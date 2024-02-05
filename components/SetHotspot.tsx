@@ -11,7 +11,7 @@ export default function SetHotspot(
 
     return (
         <div className='max-w-5xl w-full flex flex-col justify-center text-center gap-6'>
-            <h3 className="text-xl">PLACE THE HOTSPOT ON THE STAGE</h3>
+            <h3 className="text-xl uppercase text-zinc-400 text-center font-bold tracking-[0.3em]">PLACE THE HOTSPOT ON THE STAGE</h3>
             <ActionsProvider
                     data={result}
                     setData={setResult}
