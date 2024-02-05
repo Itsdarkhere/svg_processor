@@ -1,11 +1,12 @@
+'use client'
 import { Data } from '@/app/page'
 import MapFilter from './FrontendMap/MapFilter'
-import { Dispatch, SetStateAction } from 'react'
-export default function InspectFrontendMap({ result, setResult }: { result: Data, setResult: Dispatch<SetStateAction<Data>>}) {
-
+import { useState } from 'react'
+export default function InspectFrontendMap({ result }: { result: Data}) {
+    const [data, setData] = useState(() => JSON.parse(JSON.stringify(result))); // Copy to avoid modifying the original data
     return (
         <div className="max-w-5xl w-full h-full flex flex-col justify-center items-center">
-            <MapFilter data={result} setData={setResult} />
+            <MapFilter data={data} setData={setData} />
         </div>
     )
 }

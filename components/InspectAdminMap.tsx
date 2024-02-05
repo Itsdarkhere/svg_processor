@@ -1,20 +1,21 @@
 'use client'
 import { Data } from '@/app/page'
-import { Dispatch, SetStateAction } from 'react'
+import { useState } from 'react'
 import { ActionsProvider } from './AdminMap/ActionsProvider/ActionsProvider'
 import SeatMap from './AdminMap/SeatMap/SeatMap'
-export default function InspectAdminMap({ result, setResult }: { result: Data, setResult: Dispatch<SetStateAction<Data>>}) {
+export default function InspectAdminMap({ result }: { result: Data }) {
     const activeTab = "scaling" // inventory
+    const [data, setData] = useState(() => JSON.parse(JSON.stringify(result))); // Copy to avoid modifying the original data
     return (
         <div className='max-w-5xl w-full'>
             <ActionsProvider
-                    data={result}
-                    setData={setResult}
+                    data={data}
+                    setData={setData}
                     activeTab={activeTab}
                 >
                 <SeatMap
-                    data={result}
-                    setData={setResult}
+                    data={data}
+                    setData={setData}
                     activeTab={activeTab}
                 />
             </ActionsProvider>

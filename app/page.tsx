@@ -5,6 +5,7 @@ import InspectAdminMap from '@/components/InspectAdminMap';
 import InspectFrontendMap from '@/components/InspectFrontendMap';
 import Parser from '@/components/Parser';
 import Screenshot from '@/components/Screenshot';
+import SetHotspot from '@/components/SetHotspot';
 import { Inter } from 'next/font/google'
 import { useState } from 'react';
 const inter = Inter({ subsets: ['latin'] });
@@ -13,6 +14,7 @@ export default function Home() {
   const [step, setStep] = useState(0);
   const [uploaded, setUploaded] = useState(false);
   const [imagesTaken, setImagesTaken] = useState(false);
+  const [hotspotSet, setHotspotSet] = useState(false);
   const [images, setImages] = useState<any>([]);
   const [fileName, setFileName] = useState<string>("");
   const [result, setResult] = useState<Data>({
@@ -41,6 +43,8 @@ export default function Home() {
       case 3:
         return !uploaded;
       case 4:
+        return !hotspotSet;
+      case 5:
         return !imagesTaken;
       default:
         return true;
@@ -58,8 +62,10 @@ export default function Home() {
       case 3:
         return "It works?";
       case 4:
-        return "Finish";
+        return "Continue";
       case 5:
+        return "Finish";
+      case 6:
         return "All done!";
       default:
         return "Continue";
@@ -74,18 +80,20 @@ export default function Home() {
           <li className={stepClass(1)}>Confirm</li>
           <li className={stepClass(2)}>Frontend</li>
           <li className={stepClass(3)}>Admin</li>
-          <li className={stepClass(4)}>Screenshot</li>
-          <li className={stepClass(5)}>Download Files</li>
+          <li className={stepClass(4)}>Set HOTSPOT</li>
+          <li className={stepClass(5)}>Screenshot</li>
+          <li className={stepClass(6)}>Download Files</li>
         </ul>
       </div>
 
       <div className='py-36 px-4 min-h-screen w-full flex justify-center items-center'>
         {step === 0 && <Parser setUploaded={setUploaded} setResult={setResult} setFileName={setFileName} />}
         {step === 1 && <Confirm result={result} />}
-        {step === 2 && <InspectFrontendMap result={result} setResult={setResult} />}
-        {step === 3 && <InspectAdminMap result={result} setResult={setResult} />}
-        {step === 4 && <Screenshot result={result} images={images} setImages={setImages} imagesTaken={imagesTaken} setImagesTaken={setImagesTaken} />}
-        {step === 5 && <Download result={result} images={images} filename={fileName} />}
+        {step === 2 && <InspectFrontendMap result={result} />}
+        {step === 3 && <InspectAdminMap result={result} />}
+        {step === 4 && <SetHotspot result={result} setResult={setResult} setHotspotSet={setHotspotSet} />}
+        {step === 5 && <Screenshot result={result} images={images} setImages={setImages} imagesTaken={imagesTaken} setImagesTaken={setImagesTaken} />}
+        {step === 6 && <Download result={result} images={images} filename={fileName} />}
       </div>
 
       <div className=' z-30 flex justify-end items-center fixed left-0 bottom-0 right-0 bg-neutral-800 py-6 px-10'>
