@@ -1,5 +1,6 @@
 'use client'
 import Confirm from '@/components/Confirm';
+import dynamic from 'next/dynamic';
 import Download from '@/components/Download';
 import InspectAdminMap from '@/components/InspectAdminMap';
 import InspectFrontendMap from '@/components/InspectFrontendMap';
@@ -8,6 +9,9 @@ import Screenshot from '@/components/Screenshot';
 import SetHotspot from '@/components/SetHotspot';
 import { Inter } from 'next/font/google'
 import { useState } from 'react';
+const GLMap = dynamic(() => import('@/components/GLMap/GLMap'), {
+  ssr: false
+})
 const inter = Inter({ subsets: ['latin'] });
 
 export default function Home() {
@@ -88,7 +92,7 @@ export default function Home() {
 
       <div className='py-36 px-4 min-h-screen w-full flex justify-center items-center'>
         {step === 0 && <Parser setUploaded={setUploaded} setResult={setResult} setFileName={setFileName} />}
-        {step === 1 && <Confirm result={result} />}
+        {step === 1 && <GLMap data={result} />}
         {step === 2 && <InspectFrontendMap result={result} />}
         {step === 3 && <InspectAdminMap result={result} />}
         {step === 4 && <SetHotspot result={result} setResult={setResult} setHotspotSet={setHotspotSet} />}

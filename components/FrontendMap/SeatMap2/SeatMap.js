@@ -1,7 +1,7 @@
 'use client'
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useActions } from "../ActionsProvider2/ActionsProvider";
-import { Sections } from "./Sections";
+import Section from "./Section/Section";
 // import map from "./map.svg"
 export default function SeatMap({
     data,
@@ -36,10 +36,11 @@ export default function SeatMap({
                     className="map_svg"
                     // style={{ backgroundImage: `url(${map})` }} // Change to dynamic svg
                 >
-                    <Sections
-                        data={data}
-                        setData={setData}
-                    />
+                    <g className='polygons'>
+                        {data && Object.values(data.sections).map((section) => (
+                            <Section data={data} section={section} key={section.sectionId} />
+                        ))}
+                    </g>
                 </svg>
             </TransformComponent>
         </TransformWrapper>
