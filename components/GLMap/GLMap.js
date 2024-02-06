@@ -37,6 +37,7 @@ export default function GLMap({
                 {data && Object.values(data.seats).map((seat, i) => (
                     <Rect
                         onClick={() => clickSeat(seat)}
+                        cornerRadius={20}
                         key={i}
                         x={seat.cx}
                         y={seat.cy}
