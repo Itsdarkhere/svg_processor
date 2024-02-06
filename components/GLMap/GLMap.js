@@ -1,10 +1,9 @@
 'use client'
 import { Stage, Layer, Rect, Path } from 'react-konva';
-
+import './glMap.scss'
 export default function GLMap({
     data,
 }) {
-
     console.log(data);
     const desiredWidth = 608; // The width you want to fit your content into
     const desiredHeight = 708; // The height you want to fit your content into
@@ -25,7 +24,10 @@ export default function GLMap({
     }
 
     return (
-        <Stage width={desiredWidth} height={desiredHeight}
+        <Stage 
+            className='stage'
+            width={desiredWidth} 
+            height={desiredHeight}
             scaleX={scaleX}
             scaleY={scaleY}
             offsetX={-offsetX}
@@ -51,6 +53,7 @@ export default function GLMap({
                         stroke={section.stroke}
                         strokeWidth={Math.floor(section.strokeWidth)}
                         fill={section.fill}
+                        draggable
                     />
                 ))}
             </Layer>
