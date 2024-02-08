@@ -17,7 +17,11 @@ export default function SeatMap({
     const transformed = (_, newScale) => {
         setScale(newScale.scale);
     };
-
+    
+    //
+    //
+    //
+    
     // This decides if hover-effects are applied on each given seat
     const shouldSelectSeat = (seat, allAssigned) => {
         if (allAssigned) return true;
@@ -48,9 +52,9 @@ export default function SeatMap({
                     id='primary-svg'
                     data-component='svg'
                     aria-hidden='true'
-                    viewBox={`0 0 6088 7088`} // Change to dynamic viewBox
+                    viewBox={`0 0 30086 20086`} // Change to dynamic viewBox
                     className="map_svg"
-                    style={{ backgroundImage: `url(${map})` }} // Change to dynamic svg
+                    // style={{ backgroundImage: `url(${map})` }} // Change to dynamic svg
                 >
                     <Seats
                         data={data}

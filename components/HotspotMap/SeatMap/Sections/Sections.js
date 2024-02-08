@@ -38,7 +38,7 @@ export default function Sections({
         const targetRows = section.rows.map((rowId) => {
             const row = rows[rowId];
 
-            let assignedTarget = row.allAssigned;
+            let assignedTarget = row?.allAssigned;
             if (activeTab === 'inventory') {
                 assignedTarget = row.inventoryAllAssigned
             }
@@ -56,6 +56,7 @@ export default function Sections({
         }
 
         targetRows.forEach(row => {
+            console.log("ROW: ", row);
             row.seats.forEach(seatId => {
                 const seat = seats[seatId];
                 if (seat && shouldSelectSeat(seat, allAssigned)) {

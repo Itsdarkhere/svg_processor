@@ -35,10 +35,12 @@ export default function Sections({
         const section = data.sections[sectionId];
 
         // Get targetRows and check if section is allAssigned
+        console.log('rows: ', rows)
+        console.log("SecRows: ", section);
         const targetRows = section.rows.map((rowId) => {
             const row = rows[rowId];
 
-            let assignedTarget = row.allAssigned;
+            let assignedTarget = row?.allAssigned;
             if (activeTab === 'inventory') {
                 assignedTarget = row.inventoryAllAssigned
             }
@@ -48,6 +50,8 @@ export default function Sections({
             return row;
         });
 
+        console.log("TargetRows: ", targetRows);
+
         // Apply allAssigned
         if (activeTab === 'inventory') {
             section.inventoryAllAssigned = allAssigned;
@@ -56,6 +60,8 @@ export default function Sections({
         }
 
         targetRows.forEach(row => {
+            console.log("ROW: ", row);
+
             row.seats.forEach(seatId => {
                 const seat = seats[seatId];
                 if (seat && shouldSelectSeat(seat, allAssigned)) {

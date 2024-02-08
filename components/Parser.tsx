@@ -15,6 +15,7 @@ export default function Parser(
             console.log("onload");
             const svgString = e.target?.result as string;
             const parsedData = parseSVG(svgString);
+            console.log('PD: ', parsedData)
             setRowArea(parsedData);
     
             // Get the file name without the ".svg" extension
@@ -29,7 +30,7 @@ export default function Parser(
     const parseSVG = (svgString: string) => {
         const parser = new DOMParser();
         const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
-        const sections = svgDoc.querySelectorAll('g[id^="Sec-"]');
+        const sections = Array.from(svgDoc.querySelectorAll('g[id^="sec-"]')).filter(el => /^sec-\d+$/.test(el.id));;
     
         let uniqueRowNumber = 0;
         const sectionData: { [key: string]: SectionData } = {};
@@ -41,6 +42,7 @@ export default function Parser(
           const sectionInfo = parseSection(section);
           if (sectionInfo.isZoomable) {
             if (sectionInfo.rows.length > 0) {
+              console.log('sdpr: ', sectionInfo.rows)
               const rowsData = parseRows(sectionInfo, uniqueRowNumber);
               uniqueRowNumber += rowsData.newUniqueRowNumber;
               // Assign
@@ -61,7 +63,8 @@ export default function Parser(
           if (combinedData?.virtualRowData?.rowId) {
             sectionRowsArray.push(combinedData.virtualRowData.rowId);
           } else {
-            sectionRowsArray = Object.keys(sectionInfo.rows);
+            console.log("not V ROWS: ", sectionInfo.rows);
+            sectionRowsArray = Object.values(sectionInfo.rows).map(element => element.id);
           }
     
           sectionData[sectionInfo.sectionNumber!] = generateSectionData(sectionInfo, sectionRowsArray);
@@ -82,11 +85,8 @@ export default function Parser(
         // Check if section is zoomable, if yes then we need seats etc, otherwise we dont
         // In that case we add ticket directly to section
         let isZoomable = false;
-        let sectionTicket = null;
         if (zoomable === 'YZ') {
           isZoomable = true;
-        } else {
-          // sectionTicket = createTicket(sectionNumber!, `Section ${sectionNumber}`);
         }
     
         const sectionPath = section.querySelector('path')?.getAttribute('d') || null;
@@ -114,7 +114,6 @@ export default function Parser(
           sectionPath,
           rows,
           seats,
-          // ticket: sectionTicket,
           identifierTextPath,
           identifierTextFill,
           identifierTextOpacity,
@@ -137,16 +136,13 @@ export default function Parser(
     
     
     const parseRows = (sectionInfo: any, uniqueRowNumber: number) => {
-        const sectionRows: string[] = [];
         const rowData: { [key: string]: RowData } = {};
         const seatData: { [key: string]: SeatData } = {};
       
         sectionInfo.rows.forEach((row: any) => {
-          uniqueRowNumber++;
-          const rowId = `${uniqueRowNumber}`;
-          sectionRows.push(rowId);
+          // uniqueRowNumber++;
+          const rowId = `${row.id}`;
           const seatsData = parseSeats(row, sectionInfo, uniqueRowNumber);
-          // const ticket = createTicket(rowId, `Section ${sectionInfo.sectionNumber} Row ${rowId}`);
           rowData[rowId] = { rowId, sectionId: sectionInfo.sectionNumber!, seats: seatsData.seatIds, path: undefined };
           Object.assign(seatData, seatsData.seatData);
         });
@@ -208,13 +204,12 @@ export default function Parser(
     };
     
     const generateSectionData = (sectionInfo: any, rows: string[]) => {
-      console.log("GENERATESECTIONDATA")
+      console.log("generateSectionData: ", rows);
       return {
         sectionId: sectionInfo.sectionNumber,
         path: sectionInfo.sectionPath,
         rows: rows,
         zoomable: sectionInfo.isZoomable,
-        // ticket: sectionInfo.ticket,
         fill: sectionInfo.fill,
         stroke: sectionInfo.stroke,
         strokeWidth: sectionInfo.strokeWidth,
