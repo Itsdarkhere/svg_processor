@@ -43,8 +43,7 @@ export default function Parser(
           if (sectionInfo.isZoomable) {
             if (sectionInfo.rows.length > 0) {
               console.log('sdpr: ', sectionInfo.rows)
-              const rowsData = parseRows(sectionInfo, uniqueRowNumber);
-              uniqueRowNumber += rowsData.newUniqueRowNumber;
+              const rowsData = parseRows(sectionInfo);
               // Assign
               Object.assign(rowData, rowsData.rowData);
               Object.assign(seatData, rowsData.seatData);
@@ -135,19 +134,18 @@ export default function Parser(
     }
     
     
-    const parseRows = (sectionInfo: any, uniqueRowNumber: number) => {
+    const parseRows = (sectionInfo: any) => {
         const rowData: { [key: string]: RowData } = {};
         const seatData: { [key: string]: SeatData } = {};
       
         sectionInfo.rows.forEach((row: any) => {
-          // uniqueRowNumber++;
           const rowId = `${row.id}`;
-          const seatsData = parseSeats(row, sectionInfo, uniqueRowNumber);
+          const seatsData = parseSeats(row, sectionInfo, row.id);
           rowData[rowId] = { rowId, sectionId: sectionInfo.sectionNumber!, seats: seatsData.seatIds, path: undefined };
           Object.assign(seatData, seatsData.seatData);
         });
       
-        return { rowData, seatData, newUniqueRowNumber: uniqueRowNumber };
+        return { rowData, seatData };
     };
     
     const parseSeatsWithVirtualRowData = (uniqueRowNumber: number,seats: any, sectionInfo: any) => {
@@ -177,14 +175,13 @@ export default function Parser(
             rowId,
             sectionId: sectionInfo.sectionNumber!,
             seats: Object.keys(seatData),
-            // ticket,
             path: undefined // No specific path for the virtual row
         };
     
         return { seatData, virtualRowData };
     };
     
-    const parseSeats = (row: Element, sectionInfo: any, uniqueRowNumber: number) => {
+    const parseSeats = (row: Element, sectionInfo: any, rowId: number) => {
       const rowNumber = row.getAttribute('id')?.split('-')[3];
       const seats = row.querySelectorAll(`rect[id^="sec-${sectionInfo.sectionNumber}-row-${rowNumber}-seat-"]`);
       
@@ -195,7 +192,7 @@ export default function Parser(
         const id = seat.getAttribute('id');
         if (id) {
           const seatInfo = parseSeat(seat);
-          seatData[id] = { cx: seatInfo.cx, cy: seatInfo.cy, w: seatInfo.w, h: seatInfo.h, selected: false, seatId: id, sectionId: sectionInfo.sectionNumber!, rowId: uniqueRowNumber.toString()! };
+          seatData[id] = { cx: seatInfo.cx, cy: seatInfo.cy, w: seatInfo.w, h: seatInfo.h, selected: false, seatId: id, sectionId: sectionInfo.sectionNumber!, rowId: rowId.toString() };
           seatIds.push(id);
         }
       });
@@ -258,15 +255,13 @@ export default function Parser(
     return (
         <div className=" max-w-5xl flex flex-col justify-center items-center">
             <input
-                type="file"
-                name="svgFile"
-                id="svgFile"
-                accept=".svg"
-                onChange={handleChange}
-                className="file-input w-full max-w-xs"
+              type="file"
+              name="svgFile"
+              id="svgFile"
+              accept=".svg"
+              onChange={handleChange}
+              className="file-input w-full max-w-xs"
             />
-            
-            {/* {Object.keys(result.sections).length > 0 && <button className=" bg-blue-500 w-max rounded-lg px-5 py-3 text-white mt-6" onClick={downloadJSON}>Download result</button>}*/}
         </div>
     )
 }
