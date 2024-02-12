@@ -34,15 +34,16 @@ export default function Section({ section, i, selected, svgRef }) {
     return (
         <g key={section.sectionId}>
             <path
-                fill={selected ? "#E6DFF8" : "#E6E8EC"}
+                fill={selected ? section.fill : "#E6E8EC"}
                 filter={section?.filter}
                 d={section.path}
                 id={section.sectionId}
                 className={`path`}
-                strokeWidth={section?.strokeWidth}
-                stroke={selected ? "#6531F5" : "#E6E8EC"}
+                // strokeWidth={section?.strokeWidth}
+                // stroke={selected ? section?.stroke : "#E6E8EC"}
+                
             ></path>
-            <path d={section?.identifier?.path} className="path-text" id={`path-text-${i}`} fill={'#B1B5C4'} opacity={0}></path>
+            <path d={section?.identifier?.path} className="path-text" id={`path-text-${i}`} fill={section?.identifier?.fill} opacity={0}></path>
         </g>
     )
 }

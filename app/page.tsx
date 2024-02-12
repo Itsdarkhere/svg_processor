@@ -8,7 +8,7 @@ import Parser from '@/components/Parser';
 import Screenshot from '@/components/Screenshot';
 import SetHotspot from '@/components/SetHotspot';
 import { Inter } from 'next/font/google'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 const GLMap = dynamic(() => import('@/components/GLMap/GLMap'), {
   ssr: false
 })
@@ -26,6 +26,10 @@ export default function Home() {
     rows: {},
     seats: {},
   });
+
+  useEffect(() => {
+    console.log(Array.from(Object.keys(result.seats)).length);
+  }, [result])
 
   const handleContinue = () => {
     const nextStep = step + 1;

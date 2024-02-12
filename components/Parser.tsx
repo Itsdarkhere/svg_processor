@@ -15,7 +15,6 @@ export default function Parser(
             console.log("onload");
             const svgString = e.target?.result as string;
             const parsedData = parseSVG(svgString);
-            console.log('PD: ', parsedData)
             setRowArea(parsedData);
     
             // Get the file name without the ".svg" extension
@@ -40,9 +39,9 @@ export default function Parser(
         sections.forEach((section) => {
           let combinedData = undefined;
           const sectionInfo = parseSection(section);
+          console.log("secInfo: ", sectionInfo);
           if (sectionInfo.isZoomable) {
             if (sectionInfo.rows.length > 0) {
-              console.log('sdpr: ', sectionInfo.rows)
               const rowsData = parseRows(sectionInfo);
               // Assign
               Object.assign(rowData, rowsData.rowData);
@@ -62,7 +61,6 @@ export default function Parser(
           if (combinedData?.virtualRowData?.rowId) {
             sectionRowsArray.push(combinedData.virtualRowData.rowId);
           } else {
-            console.log("not V ROWS: ", sectionInfo.rows);
             sectionRowsArray = Object.values(sectionInfo.rows).map(element => element.id);
           }
     
@@ -76,7 +74,7 @@ export default function Parser(
         const sectionNumber = section.getAttribute('id')?.split('-')[1];
         const zoomable = section.getAttribute('class');
     
-        const sectionP = section.querySelector('path');
+        const sectionP = section.querySelector(`path[id^="overlay"]`);
         const fill = sectionP?.getAttribute('fill');
         const stroke = sectionP?.getAttribute('stroke');
         const strokeWidth = sectionP?.getAttribute('stroke-width');
@@ -88,7 +86,7 @@ export default function Parser(
           isZoomable = true;
         }
     
-        const sectionPath = section.querySelector('path')?.getAttribute('d') || null;
+        const sectionPath = sectionP?.getAttribute('d') || null;
         const rows = section.querySelectorAll(`g[id^="sec-${sectionNumber}-row-"]`);
         // If no rows find seats directly
         let seats = undefined;
@@ -97,11 +95,10 @@ export default function Parser(
         }
     
         // Identifier is like the text above a section
-        const identifier = section.querySelector(`g[id^="identifier"]`);
-        const identifierText = identifier?.querySelector('path');
-        const identifierTextPath = identifierText?.getAttribute('d') || null;
-        const identifierTextFill = identifierText?.getAttribute('fill') || null;
-        const identifierTextOpacity = identifierText?.getAttribute('fill-opacity') || null;
+        const identifier = section.querySelector(`path[id^="identifier"]`);
+        const identifierTextPath = identifier?.getAttribute('d') || null;
+        const identifierTextFill = identifier?.getAttribute('fill') || null;
+        const identifierTextOpacity = identifier?.getAttribute('fill-opacity') || null;
     
         return {
           sectionNumber,
@@ -201,7 +198,6 @@ export default function Parser(
     };
     
     const generateSectionData = (sectionInfo: any, rows: string[]) => {
-      console.log("generateSectionData: ", rows);
       return {
         sectionId: sectionInfo.sectionNumber,
         path: sectionInfo.sectionPath,
