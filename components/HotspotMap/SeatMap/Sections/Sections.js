@@ -6,11 +6,13 @@ export default function Sections({
     shouldSelectSeat,
     activeMapAction, 
     activeTab, 
+    activeSpot
 }) {
 
     const getSectionFill = (section) => {
         if (activeMapAction === 4 && activeTab === 'scaling') {
-            return 'rgb(255, 0, 23)';
+            console.log('getSectionFill: ', section?.hotspotFill);
+            return section?.hotspotFill;
         }
         if (section?.selected) {
             return 'blue';
@@ -121,13 +123,14 @@ export default function Sections({
                         <path
                             d={section.path}
                             id={section.sectionId}
+                            fill={getSectionFill(section)}
                             onClick={() => handleSectionSelect(section)}
                             onMouseOver={() => handleSectionAction(section.sectionId, 'brightness(0.8)')}
                             onMouseOut={() => handleSectionAction(section.sectionId, undefined)}
                             style={{
-                                opacity: 0,
                                 pointerEvents: activeMapAction === 1 ? "all" : "none",
                             }}
+                            opacity={activeSpot === 'sections' ? 1 : 0}
                             className={`path`}
                         ></path>
                     </g>

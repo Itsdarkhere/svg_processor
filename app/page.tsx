@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 const GLMap = dynamic(() => import('@/components/GLMap/GLMap'), {
   ssr: false
 })
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ['latin']});
 
 export default function Home() {
   const [step, setStep] = useState(0);
@@ -81,7 +81,7 @@ export default function Home() {
   }
 
   return (
-    <main className={`flex flex-col justify-start items-center bg-neutral-950 ${inter.className}`}>
+    <main className={`flex flex-col justify-start items-center bg-neutral-950 `}>
       <div className='flex z-30  justify-center bg-neutral-800 items-center py-8 fixed top-0 left-0 right-0 w-full'>
         <ul className="steps">
           <li className={stepClass(0)}>Upload SVG</li>

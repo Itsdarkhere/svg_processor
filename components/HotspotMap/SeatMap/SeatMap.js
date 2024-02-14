@@ -4,12 +4,11 @@ import { useActions } from "../ActionsProvider/ActionsProvider";
 import { Sections } from "./Sections";
 import { Seats } from "./Seats";
 
-import map from "./map.svg"
-
 export default function SeatMap({
     data,
     setData,
     activeTab,
+    activeSpot
 }) {
 
     const { svgRef, setScale, zoomRef, activeMapAction } = useActions();
@@ -58,6 +57,7 @@ export default function SeatMap({
                         activeTab={activeTab}
                         shouldSelectSeat={shouldSelectSeat}
                         activeMapAction={activeMapAction}
+                        activeSpot={activeSpot}
                     />
                     <Sections
                         data={data}
@@ -65,6 +65,7 @@ export default function SeatMap({
                         activeTab={activeTab}
                         shouldSelectSeat={shouldSelectSeat}
                         activeMapAction={activeMapAction}
+                        activeSpot={activeSpot}
                     />
                 </svg>
             </TransformComponent>

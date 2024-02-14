@@ -6,6 +6,7 @@ export default function Seats({
     activeTab,
     shouldSelectSeat,
     activeMapAction,  
+    activeSpot
 }) {
 
     const handleRowAction = (rowId, filter) => {
@@ -99,6 +100,7 @@ export default function Seats({
                                 selectSeat={selectSeat}
                                 fill={getFillType(seat)}
                                 activeMapAction={activeMapAction}
+                                activeSpot={activeSpot}
                             />
                         )
                     })}
@@ -110,7 +112,8 @@ export default function Seats({
                             onClick={() => handleRowSelect(row.rowId)}
                             onMouseOver={() => handleRowAction(row.rowId, 'brightness(0.8)')}
                             onMouseOut={() => handleRowAction(row.rowId, undefined)}
-                            fill='transparent'
+                            opacity={activeSpot === 'rows' ? 1 : 0}
+                            fill={getFillType(row)}
                         />
                     )}
                 </g>
