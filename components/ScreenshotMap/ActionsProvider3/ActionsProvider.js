@@ -15,14 +15,11 @@ export const useActions = () => {
 // Create the provider component
 export const ActionsProvider = ({ children }) => {
     const svgRef = useRef(null);
-    const zoomRef = useRef(null);
-    const mapRef = useRef(null);
-    const [activeMapAction, setActiveMapAction] = useState(3);
-    const [scale, setScale] = useState(1);
+    const activeMapAction = 3;
 
     return (
-        <ActionsContext.Provider value={{ svgRef, setScale, zoomRef, activeMapAction }}>
-            <div id="mappp" ref={mapRef}>
+        <ActionsContext.Provider value={{ svgRef, activeMapAction }}>
+            <div id="mappp">
                 {children}
             </div>
         </ActionsContext.Provider>

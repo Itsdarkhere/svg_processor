@@ -11,7 +11,6 @@ export default function Sections({
 
     const getSectionFill = (section) => {
         if (activeMapAction === 4 && activeTab === 'scaling') {
-            console.log('getSectionFill: ', section?.hotspotFill);
             return section?.hotspotFill;
         }
         if (section?.selected) {

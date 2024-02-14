@@ -42,7 +42,6 @@ export default function Parser(
         sections.forEach((section) => {
           let combinedData = undefined;
           const sectionInfo = parseSection(section);
-          console.log("secInfo: ", sectionInfo);
           if (sectionInfo.isZoomable) {
             if (sectionInfo.rows.length > 0) {
               const rowsData = parseRows(sectionInfo);
@@ -158,8 +157,6 @@ export default function Parser(
       
         sectionInfo.rows.forEach((row: any) => {
           const rowId = `${row.getAttribute('class')}`;
-          console.log('rowId: ', rowId);
-          console.log('row: ', row);
           const seatsData = parseSeats(row, sectionInfo, row.getAttribute('class'));
           rowData[rowId] = { rowId, sectionId: sectionInfo.sectionNumber!, seats: seatsData.seatIds, path: undefined };
           Object.assign(seatData, seatsData.seatData);

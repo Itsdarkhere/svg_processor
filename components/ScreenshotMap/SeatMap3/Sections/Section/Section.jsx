@@ -1,7 +1,8 @@
+'use client'
 import { useEffect } from "react";
 
 export default function Section({ section, i, selected, svgRef }) {
-
+    
     useEffect(() => {
         const circleId = `highlight-circle-${i}`;
         if (selected) {

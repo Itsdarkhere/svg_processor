@@ -4,8 +4,6 @@ import { useActions } from "../ActionsProvider/ActionsProvider";
 import { Sections } from "./Sections";
 import { Seats } from "./Seats";
 
-import map from "./map.svg"
-
 export default function SeatMap({
     data,
     setData,
@@ -54,7 +52,6 @@ export default function SeatMap({
                     aria-hidden='true'
                     viewBox={`0 0 10240 7680`} // Change to dynamic viewBox
                     className="map_svg"
-                    // style={{ backgroundImage: `url(${map})` }} // Change to dynamic svg
                 >
                     <Seats
                         data={data}

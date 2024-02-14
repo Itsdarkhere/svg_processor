@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import Section from './Section/Section';
 
 export default function Sections({ 
