@@ -106,6 +106,7 @@ export default function DraggableSpot({ data, setData, svgRef, dragging, setDrag
         Object.values(newData.seats).forEach((seat) => {
             const normalizedDistance = (seat.distance - minDistance) / (maxDistance - minDistance);
             const color = colorScale(normalizedDistance);
+
             seat.hotspotFill = color;
             seat.sortOrder = normalizedDistance;
         })
@@ -130,12 +131,18 @@ export default function DraggableSpot({ data, setData, svgRef, dragging, setDrag
 
         let maxSortOrderSections = -10;
         Object.values(newData.sections).forEach((section) => {
-            const { sortOrder, hotspotFill } = computeSectionSortOrder(section, newData);
-            section.sortOrder = sortOrder;
-            section.hotspotFill = hotspotFill;
-            if (sortOrder > maxSortOrderSections) {
-                maxSortOrderSections = sortOrder;
-                hsf = hotspotFill;
+            if (section.zoomable) {
+                const { sortOrder, hotspotFill } = computeSectionSortOrder(section, data);
+                section.sortOrder = sortOrder;
+                section.hotspotFill = hotspotFill;
+                if (sortOrder > maxSortOrderSections) {
+                    maxSortOrderSections = sortOrder;
+                    hsf = hotspotFill;
+                }
+            } else {
+                // Check this, I think its 0, might be 1
+                section.sortOrder = 0;
+                section.hotspotFill = 'red';
             }
         })
 
