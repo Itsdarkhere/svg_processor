@@ -29,7 +29,10 @@ export default function Parser(
     const parseSVG = (svgString: string) => {
         const parser = new DOMParser();
         const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
-        const sections = Array.from(svgDoc.querySelectorAll('g[id^="sec-"]')).filter(el => /^sec-\d+$/.test(el.id));;
+        const sections = Array.from(svgDoc.querySelectorAll('g[class^="sec-"]')).filter((el) => {
+          let as = el.className as unknown as SVGAnimatedString;
+          return /\bsec-\d+\b(?!\-)/.test(as.baseVal);
+        });
     
         let uniqueRowNumber = 0;
         const sectionData: { [key: string]: SectionData } = {};
@@ -61,7 +64,7 @@ export default function Parser(
           if (combinedData?.virtualRowData?.rowId) {
             sectionRowsArray.push(combinedData.virtualRowData.rowId);
           } else {
-            sectionRowsArray = Object.values(sectionInfo.rows).map(element => element.id);
+            sectionRowsArray = Object.values(sectionInfo.rows).map(element => element.getAttribute('class')!);
           }
     
           sectionData[sectionInfo.sectionNumber!] = generateSectionData(sectionInfo, sectionRowsArray);
@@ -71,13 +74,38 @@ export default function Parser(
     }
     
     const parseSection = (section: Element) => {
-        const sectionNumber = section.getAttribute('id')?.split('-')[1];
-        const zoomable = section.getAttribute('class');
+        const sectionNumber = section.getAttribute('class')?.split(' ')[0].split('-')[1];
+        const zoomable = section.getAttribute('class')?.split(' ')[1];
     
-        const sectionP = section.querySelector(`path[id^="overlay"]`);
+        const identifierGroup = section.querySelector(`g[class^="identifier"]`);
+        const paths = identifierGroup?.querySelectorAll('path');
+        let sectionP: SVGPathElement | null = null;
+        let identifier: SVGPathElement | null = null;
+
+        if (paths) {
+          paths.forEach(path => {
+            if (path.classList.contains('overlay')) {
+              sectionP = path;
+            } else {
+              identifier = path;
+            }
+          });
+        } else {
+          console.error('No identifier paths found in section');
+        }
+
+        // Force non-null
+        sectionP = sectionP!;
+        identifier = identifier!;
+
         const fill = sectionP?.getAttribute('fill');
         const stroke = sectionP?.getAttribute('stroke');
         const strokeWidth = sectionP?.getAttribute('stroke-width');
+        const sectionPath = sectionP?.getAttribute('d') || null;
+        // Identifier is like the text above a section
+        const identifierTextPath = identifier?.getAttribute('d') || null;
+        const identifierTextFill = identifier?.getAttribute('fill') || null;
+        const identifierTextOpacity = identifier?.getAttribute('fill-opacity') || null;
     
         // Check if section is zoomable, if yes then we need seats etc, otherwise we dont
         // In that case we add ticket directly to section
@@ -86,19 +114,12 @@ export default function Parser(
           isZoomable = true;
         }
     
-        const sectionPath = sectionP?.getAttribute('d') || null;
-        const rows = section.querySelectorAll(`g[id^="sec-${sectionNumber}-row-"]`);
+        const rows = section.querySelectorAll(`g[class^="sec-${sectionNumber}-row-"]`);
         // If no rows find seats directly
         let seats = undefined;
         if (rows.length === 0) {
-          seats = section.querySelectorAll(`rect[id^="sec-${sectionNumber}-seat-"]`);
+          seats = section.querySelectorAll(`rect[class^="sec-${sectionNumber}-seat-"]`);
         }
-    
-        // Identifier is like the text above a section
-        const identifier = section.querySelector(`path[id^="identifier"]`);
-        const identifierTextPath = identifier?.getAttribute('d') || null;
-        const identifierTextFill = identifier?.getAttribute('fill') || null;
-        const identifierTextOpacity = identifier?.getAttribute('fill-opacity') || null;
     
         return {
           sectionNumber,
@@ -136,8 +157,10 @@ export default function Parser(
         const seatData: { [key: string]: SeatData } = {};
       
         sectionInfo.rows.forEach((row: any) => {
-          const rowId = `${row.id}`;
-          const seatsData = parseSeats(row, sectionInfo, row.id);
+          const rowId = `${row.getAttribute('class')}`;
+          console.log('rowId: ', rowId);
+          console.log('row: ', row);
+          const seatsData = parseSeats(row, sectionInfo, row.getAttribute('class'));
           rowData[rowId] = { rowId, sectionId: sectionInfo.sectionNumber!, seats: seatsData.seatIds, path: undefined };
           Object.assign(seatData, seatsData.seatData);
         });
@@ -145,22 +168,22 @@ export default function Parser(
         return { rowData, seatData };
     };
     
-    const parseSeatsWithVirtualRowData = (uniqueRowNumber: number,seats: any, sectionInfo: any) => {
+    const parseSeatsWithVirtualRowData = (uniqueRowNumber: number, seats: any, sectionInfo: any) => {
         const seatData: { [key: string]: SeatData } = {};
         const rowId = uniqueRowNumber.toString();
 
         seats.forEach((seat: any) => {
-            let id = seat.getAttribute('id');
-            if (id) {
-                id = id.replace(/(sec-\d+)-/, `$1-row-${rowId}-`);
+            let classname = seat.getAttribute('class');
+            if (classname) {
+                classname = classname.replace(/(sec-\d+)-/, `$1-row-${rowId}-`);
                 const seatInfo = parseSeat(seat);
-                seatData[id] = { 
+                seatData[classname] = { 
                     cx: seatInfo.cx, 
                     cy: seatInfo.cy, 
                     w: seatInfo.w, 
                     h: seatInfo.h, 
                     selected: false, 
-                    seatId: id, 
+                    seatId: classname, 
                     sectionId: sectionInfo.sectionNumber!,
                     rowId: rowId  // Assigning the rowId
                 };
@@ -179,18 +202,18 @@ export default function Parser(
     };
     
     const parseSeats = (row: Element, sectionInfo: any, rowId: number) => {
-      const rowNumber = row.getAttribute('id')?.split('-')[3];
-      const seats = row.querySelectorAll(`rect[id^="sec-${sectionInfo.sectionNumber}-row-${rowNumber}-seat-"]`);
+      const rowNumber = row.getAttribute('class')?.split('-')[3];
+      const seats = row.querySelectorAll(`rect[class^="sec-${sectionInfo.sectionNumber}-row-${rowNumber}-seat-"]`);
       
       const seatData: { [key: string]: SeatData } = {};
       const seatIds: string[] = [];
     
       seats.forEach((seat) => {
-        const id = seat.getAttribute('id');
-        if (id) {
+        const classname = seat.getAttribute('class');
+        if (classname) {
           const seatInfo = parseSeat(seat);
-          seatData[id] = { cx: seatInfo.cx, cy: seatInfo.cy, w: seatInfo.w, h: seatInfo.h, selected: false, seatId: id, sectionId: sectionInfo.sectionNumber!, rowId: rowId.toString() };
-          seatIds.push(id);
+          seatData[classname] = { cx: seatInfo.cx, cy: seatInfo.cy, w: seatInfo.w, h: seatInfo.h, selected: false, seatId: classname, sectionId: sectionInfo.sectionNumber!, rowId: rowId.toString() };
+          seatIds.push(classname);
         }
       });
     
