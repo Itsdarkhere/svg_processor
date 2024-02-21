@@ -6,8 +6,8 @@ import SeatMap from './ScreenshotMap/SeatMap3/SeatMap'
 import * as htmlToImage from 'html-to-image';
 
 export default function Screenshot(
-    { result, images, setImages, imagesTaken, setImagesTaken }: 
-    { result: Data, images: any, setImages: Dispatch<SetStateAction<any>>, imagesTaken: boolean, setImagesTaken: Dispatch<SetStateAction<boolean>>}
+    { result, images, setImages, setImagesTaken }: 
+    { result: Data, images: any, setImages: Dispatch<SetStateAction<any>>, setImagesTaken: Dispatch<SetStateAction<boolean>>}
     ) {
     const activeTab = "scaling" // inventory
     const [selectedIds, setSelectedIds] = useState({ section: "", row: "" });
@@ -22,7 +22,6 @@ export default function Screenshot(
     useEffect(() => {
         if (!result?.sections || Object.keys(result.sections).length === 0) return;
 
-        console.log('res sec: ', result.sections);
         let currentSectionIndex = 0;
         let currentRowIndex = 0;
         let maxSectionIndex = Object.keys(result.sections).length - 1;
@@ -30,7 +29,6 @@ export default function Screenshot(
             const currentSectionIndexIsMax = currentSectionIndex === maxSectionIndex;
             const newSectionTarget = Object.values(result.sections)[currentSectionIndex];
             const maxRowIndex = Object.keys(newSectionTarget.rows).length - 1 >= 0 ? Object.keys(newSectionTarget.rows).length - 1 : 0;
-            console.log('maxRowIndex: ', maxRowIndex);
             const currentRowIndexIsMax = currentRowIndex === maxRowIndex;
             const newTargetRow = newSectionTarget.rows[currentRowIndex];
     
