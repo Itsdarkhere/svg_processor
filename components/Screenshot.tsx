@@ -29,7 +29,8 @@ export default function Screenshot(
         let interval = setInterval(() => {
             const currentSectionIndexIsMax = currentSectionIndex === maxSectionIndex;
             const newSectionTarget = Object.values(result.sections)[currentSectionIndex];
-            const maxRowIndex = Object.keys(newSectionTarget.rows).length - 1;
+            const maxRowIndex = Object.keys(newSectionTarget.rows).length - 1 >= 0 ? Object.keys(newSectionTarget.rows).length - 1 : 0;
+            console.log('maxRowIndex: ', maxRowIndex);
             const currentRowIndexIsMax = currentRowIndex === maxRowIndex;
             const newTargetRow = newSectionTarget.rows[currentRowIndex];
     
