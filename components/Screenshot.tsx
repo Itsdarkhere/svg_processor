@@ -13,6 +13,13 @@ export default function Screenshot(
     const [selectedIds, setSelectedIds] = useState({ section: "", row: "" });
 
     const captureImage = () => {
+        if (!selectedIds.row) {
+            console.log('---Save this ss into section---');
+        } else {
+            console.log('---Save this ss into row---')
+        }
+
+
         htmlToImage.toPng(document.getElementById('mappp')!)
         .then(function (dataUrl: any) {
             setImages((prevImages: any) => [...prevImages, dataUrl]);
@@ -32,9 +39,9 @@ export default function Screenshot(
             const currentRowIndexIsMax = currentRowIndex === maxRowIndex;
             const newTargetRow = newSectionTarget.rows[currentRowIndex];
     
+            console.log('section: ', newSectionTarget.sectionId);
+            console.log('row: ', newTargetRow);
             setSelectedIds({ section: newSectionTarget.sectionId!, row: newTargetRow });
-    
-            console.log('newRow: ', newTargetRow);
     
             if (currentSectionIndexIsMax && currentRowIndexIsMax) {
                 clearInterval(interval);
