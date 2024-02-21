@@ -1,4 +1,5 @@
 'use client'
+import {v4 as uuidv4} from 'uuid';
 import { Data } from '@/app/page'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import { ActionsProvider } from './ScreenshotMap/ActionsProvider3/ActionsProvider'
@@ -6,23 +7,33 @@ import SeatMap from './ScreenshotMap/SeatMap3/SeatMap'
 import * as htmlToImage from 'html-to-image';
 
 export default function Screenshot(
-    { result, images, setImages, setImagesTaken }: 
-    { result: Data, images: any, setImages: Dispatch<SetStateAction<any>>, setImagesTaken: Dispatch<SetStateAction<boolean>>}
+    { result, setResult, images, setImages, setImagesTaken, setElementSSMapping }: 
+    { result: Data, setResult: Dispatch<SetStateAction<Data>>, images: any, setImages: Dispatch<SetStateAction<any>>, setImagesTaken: Dispatch<SetStateAction<boolean>>, setElementSSMapping: Dispatch<SetStateAction<any[]>>}
     ) {
-    const activeTab = "scaling" // inventory
     const [selectedIds, setSelectedIds] = useState({ section: "", row: "" });
 
     const captureImage = () => {
+        let imgUUID = uuidv4();
         if (!selectedIds.row) {
-            console.log('---Save this ss into section---');
+            setElementSSMapping((prevResult: any) => {
+                let newResult = [...prevResult];
+                let selectedSection = selectedIds.section;
+                const newMapping = { section: true, id: selectedSection, screenshot: imgUUID };
+                return [...newResult, newMapping];
+            })
         } else {
-            console.log('---Save this ss into row---')
+            setElementSSMapping((prevResult: any) => {
+                let newResult = [...prevResult];
+                let selectedRow = selectedIds.row;
+                const newMapping = { section: false, id: selectedRow, screenshot: imgUUID };
+                return [...newResult, newMapping];
+            })
         }
 
 
         htmlToImage.toPng(document.getElementById('mappp')!)
         .then(function (dataUrl: any) {
-            setImages((prevImages: any) => [...prevImages, dataUrl]);
+            setImages((prevImages: any) => [...prevImages, { id: imgUUID, url: dataUrl }]);
         });
     };
 
@@ -39,8 +50,7 @@ export default function Screenshot(
             const currentRowIndexIsMax = currentRowIndex === maxRowIndex;
             const newTargetRow = newSectionTarget.rows[currentRowIndex];
     
-            console.log('section: ', newSectionTarget.sectionId);
-            console.log('row: ', newTargetRow);
+            console.log("newTR", newTargetRow);
             setSelectedIds({ section: newSectionTarget.sectionId!, row: newTargetRow });
     
             if (currentSectionIndexIsMax && currentRowIndexIsMax) {
@@ -68,14 +78,13 @@ export default function Screenshot(
             <ActionsProvider>
                 <SeatMap
                     data={result}
-                    activeTab={activeTab}
                     selectedIds={selectedIds}
                 />
             </ActionsProvider>
             <div className='flex flex-row flex-wrap gap-4 justify-center'>
-                {images && images.map((image: any, index: number) => {
+                {images && images.map((imageobj: any, index: number) => {
                     return (
-                        <img key={index} height={200} width={300} src={image} alt={`Screenshot ${index + 1}`} />
+                        <img key={index} height={200} width={300} src={imageobj.url} alt={`Screenshot ${index + 1}`} />
                     )
                 })}
             </div>

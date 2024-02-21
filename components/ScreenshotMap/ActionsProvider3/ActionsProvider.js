@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useRef, useState } from 'react';
+import React, { createContext, useContext, useRef } from 'react';
 import '../SeatMap3/seatMap.scss'
 
 // Create the context
@@ -15,10 +15,9 @@ export const useActions = () => {
 // Create the provider component
 export const ActionsProvider = ({ children }) => {
     const svgRef = useRef(null);
-    const activeMapAction = 3;
 
     return (
-        <ActionsContext.Provider value={{ svgRef, activeMapAction }}>
+        <ActionsContext.Provider value={{ svgRef }}>
             <div id="mappp">
                 {children}
             </div>

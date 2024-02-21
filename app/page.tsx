@@ -19,8 +19,9 @@ export default function Home() {
   const [uploaded, setUploaded] = useState(false);
   const [imagesTaken, setImagesTaken] = useState(false);
   const [hotspotSet, setHotspotSet] = useState(false);
-  const [images, setImages] = useState<any>([]);
+  const [images, setImages] = useState<{ id: string, url: any }[]>([]);
   const [fileName, setFileName] = useState<string>("");
+  const [elementSSMapping, setElementSSMapping] = useState<any[]>([]);
   const [result, setResult] = useState<Data>({
     sections: {},
     rows: {},
@@ -96,12 +97,12 @@ export default function Home() {
 
       <div className='py-36 px-4 min-h-screen w-full flex justify-center items-center'>
         {step === 0 && <Parser setUploaded={setUploaded} setResult={setResult} setFileName={setFileName} />}
-        {step === 5 && <Confirm result={result} />}
+        {step === 1 && <Confirm result={result} />}
         {step === 2 && <InspectFrontendMap result={result} />}
         {step === 3 && <InspectAdminMap result={result} />}
         {step === 4 && <SetHotspot result={result} setResult={setResult} setHotspotSet={setHotspotSet} />}
-        {step === 1 && <Screenshot result={result} images={images} setImages={setImages} imagesTaken={imagesTaken} setImagesTaken={setImagesTaken} />}
-        {step === 6 && <Download result={result} images={images} filename={fileName} />}
+        {step === 5 && <Screenshot setElementSSMapping={setElementSSMapping} result={result} images={images} setImages={setImages} setResult={setResult} setImagesTaken={setImagesTaken} />}
+        {step === 6 && <Download setResult={setResult} elementSSMapping={elementSSMapping} result={result} images={images} filename={fileName} />}
       </div>
 
       <div className=' z-30 flex justify-end items-center fixed left-0 bottom-0 right-0 bg-neutral-800 py-6 px-10'>
@@ -132,6 +133,7 @@ export interface SectionData {
   },
   // ticket: Ticket | null;
   rows: string[];
+  screenshot: string | null;
 }
 
 export interface RowData {
@@ -139,6 +141,7 @@ export interface RowData {
   sectionId: string,
   path: string | undefined;
   seats: string[];
+  screenshot: string | null;
   // ticket: Ticket;
 }
 

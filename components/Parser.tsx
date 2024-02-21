@@ -66,7 +66,7 @@ export default function Parser(
             sectionRowsArray = Object.values(sectionInfo.rows).map(element => element.getAttribute('class')!);
           }
     
-          sectionData[sectionInfo.sectionNumber!] = generateSectionData(sectionInfo, sectionRowsArray);
+          sectionData["sec-" + sectionInfo.sectionNumber!] = generateSectionData(sectionInfo, sectionRowsArray);
         });
       
         return { sections: sectionData, rows: rowData, seats: seatData };
@@ -158,7 +158,7 @@ export default function Parser(
         sectionInfo.rows.forEach((row: any) => {
           const rowId = `${row.getAttribute('class')}`;
           const seatsData = parseSeats(row, sectionInfo, row.getAttribute('class'));
-          rowData[rowId] = { rowId, sectionId: "sec-" + sectionInfo.sectionNumber!, seats: seatsData.seatIds, path: undefined };
+          rowData[rowId] = { rowId, sectionId: "sec-" + sectionInfo.sectionNumber!, seats: seatsData.seatIds, path: undefined, screenshot: null };
           Object.assign(seatData, seatsData.seatData);
         });
       
@@ -192,7 +192,8 @@ export default function Parser(
             rowId,
             sectionId: "sec-" + sectionInfo.sectionNumber!,
             seats: Object.keys(seatData),
-            path: undefined // No specific path for the virtual row
+            path: undefined, // No specific path for the virtual row,
+            screenshot: null,
         };
     
         return { seatData, virtualRowData };
@@ -230,7 +231,8 @@ export default function Parser(
           path: sectionInfo.identifierTextPath,
           fill: sectionInfo.identifierTextFill,
           opacity: sectionInfo.identifierTextOpacity,
-        }
+        },
+        screenshot: null,
       };
     };
     

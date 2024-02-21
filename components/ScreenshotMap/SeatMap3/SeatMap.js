@@ -6,10 +6,9 @@ import { Rows } from "./Rows";
 
 export default function SeatMap({
     data,
-    activeTab,
     selectedIds,
 }) {
-    const { svgRef, activeMapAction } = useActions();
+    const { svgRef } = useActions();
 
     return (
         <TransformWrapper
