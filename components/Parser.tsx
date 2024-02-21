@@ -158,7 +158,7 @@ export default function Parser(
         sectionInfo.rows.forEach((row: any) => {
           const rowId = `${row.getAttribute('class')}`;
           const seatsData = parseSeats(row, sectionInfo, row.getAttribute('class'));
-          rowData[rowId] = { rowId, sectionId: sectionInfo.sectionNumber!, seats: seatsData.seatIds, path: undefined };
+          rowData[rowId] = { rowId, sectionId: "sec-" + sectionInfo.sectionNumber!, seats: seatsData.seatIds, path: undefined };
           Object.assign(seatData, seatsData.seatData);
         });
       
@@ -181,7 +181,7 @@ export default function Parser(
                     h: seatInfo.h, 
                     selected: false, 
                     seatId: classname, 
-                    sectionId: sectionInfo.sectionNumber!,
+                    sectionId: "sec-" + sectionInfo.sectionNumber!,
                     rowId: rowId  // Assigning the rowId
                 };
             }
@@ -190,7 +190,7 @@ export default function Parser(
         // const ticket = createTicket(rowId, `Section ${sectionInfo.sectionNumber} Row ${rowId}`);
         const virtualRowData = {
             rowId,
-            sectionId: sectionInfo.sectionNumber!,
+            sectionId: "sec-" + sectionInfo.sectionNumber!,
             seats: Object.keys(seatData),
             path: undefined // No specific path for the virtual row
         };
@@ -209,7 +209,7 @@ export default function Parser(
         const classname = seat.getAttribute('class');
         if (classname) {
           const seatInfo = parseSeat(seat);
-          seatData[classname] = { cx: seatInfo.cx, cy: seatInfo.cy, w: seatInfo.w, h: seatInfo.h, selected: false, seatId: classname, sectionId: sectionInfo.sectionNumber!, rowId: rowId.toString() };
+          seatData[classname] = { cx: seatInfo.cx, cy: seatInfo.cy, w: seatInfo.w, h: seatInfo.h, selected: false, seatId: classname, sectionId: "sec-" + sectionInfo.sectionNumber!, rowId: rowId.toString() };
           seatIds.push(classname);
         }
       });
@@ -219,7 +219,7 @@ export default function Parser(
     
     const generateSectionData = (sectionInfo: any, rows: string[]) => {
       return {
-        sectionId: sectionInfo.sectionNumber,
+        sectionId: "sec-" + sectionInfo.sectionNumber,
         path: sectionInfo.sectionPath,
         rows: rows,
         zoomable: sectionInfo.isZoomable,

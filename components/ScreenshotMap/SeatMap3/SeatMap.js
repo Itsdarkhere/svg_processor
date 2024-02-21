@@ -2,12 +2,12 @@
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useActions } from "../ActionsProvider3/ActionsProvider";
 import { Sections } from "./Sections";
-import { Seats } from "./Seats";
+import { Rows } from "./Rows";
 
 export default function SeatMap({
     data,
     activeTab,
-    selectedIndex,
+    selectedIds,
 }) {
     const { svgRef, activeMapAction } = useActions();
 
@@ -31,8 +31,9 @@ export default function SeatMap({
                     <Sections
                         data={data}
                         svgRef={svgRef}
-                        selectedIndex={selectedIndex}
+                        selectedIds={selectedIds}
                     />
+                    <Rows data={data} svgRef={svgRef} selectedIds={selectedIds} />
                 </svg>
             </TransformComponent>
         </TransformWrapper>
