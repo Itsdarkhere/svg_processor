@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { useActions } from "../../ActionsProvider/ActionsProvider";
 
 export default function Sections({ 
     data, 
@@ -9,12 +10,14 @@ export default function Sections({
     activeSpot
 }) {
 
+    const { selectingIndex, setSectionsInFloor, hex } = useActions();
+
     const getSectionFill = (section) => {
         if (activeMapAction === 4 && activeTab === 'scaling') {
             return section?.hotspotFill;
         }
         if (section?.selected) {
-            return 'blue';
+            return section?.floorfill || 'blue';
         }
         if (activeTab === 'scaling') {
             return "#E6E8EC"; // 'rgba(177, 181, 195, 1)'
@@ -57,7 +60,6 @@ export default function Sections({
         }
 
         targetRows.forEach(row => {
-            console.log("ROW: ", row);
             row.seats.forEach(seatId => {
                 const seat = seats[seatId];
                 if (seat && shouldSelectSeat(seat, allAssigned)) {
@@ -87,6 +89,25 @@ export default function Sections({
             getSeatIdsForNonZoomableSection(section, updatedData.sections);
         }
 
+        setSectionsInFloor((prev) => {
+            // Creating a copy of the array for immutability
+            const updatedSections = [...prev];
+        
+            // Check if the section for the selectingIndex exists
+            if (updatedSections[selectingIndex]) {
+                // Check if the sectionId is already in the array
+                if (!updatedSections[selectingIndex].includes(section.sectionId)) {
+                    updatedSections[selectingIndex].push(section.sectionId);
+                }
+            } else {
+                // Create a new array with the sectionId at the selectingIndex
+                updatedSections[selectingIndex] = [section.sectionId];
+            }
+            
+            // Return the updated array
+            return updatedSections;
+        });
+
         setData(updatedData);
     };
 
@@ -103,6 +124,7 @@ export default function Sections({
                 if (!seats[seatId]) return false;
                 if (shouldSelectSeat(seats[seatId], assignedTarget)) {
                     seats[seatId].selected = true;
+                    seats[seatId].floorfill = hex[selectingIndex];
                     return true;
                 }
                 return false;
@@ -111,6 +133,7 @@ export default function Sections({
 
     const getSeatIdsForNonZoomableSection = (section, sections) => {
         sections[section.sectionId].selected = !sections[section.sectionId].selected;
+        sections[section.sectionId].floorfill = hex[selectingIndex];
     };
 
     return (

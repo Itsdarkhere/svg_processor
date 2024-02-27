@@ -3,15 +3,16 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { useActions } from "../ActionsProvider/ActionsProvider";
 import { Sections } from "./Sections";
 import { Seats } from "./Seats";
+import { useEffect } from "react";
 
 export default function SeatMap({
     data,
     setData,
     activeTab,
-    activeSpot
+    floorsize,
 }) {
 
-    const { svgRef, setScale, zoomRef, activeMapAction } = useActions();
+    const { svgRef, setScale, zoomRef, activeMapAction, activeSpot, setFloors } = useActions();
     // If anything changes in the map, this triggers
     const transformed = (_, newScale) => {
         setScale(newScale.scale);
@@ -28,6 +29,10 @@ export default function SeatMap({
 
         return false;
     };
+
+    useEffect(() => {
+        setFloors(floorsize);
+    }, [floorsize])
 
     return (
         <TransformWrapper

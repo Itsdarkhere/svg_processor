@@ -50,7 +50,7 @@ export default function Seats({
         if (activeMapAction === 4 && activeTab === 'scaling') {
             return seat?.hotspotFill;
         }
-        if (seat.selected) return 'blue';
+        if (seat?.selected) return seat?.floorfill || 'blue';
         if (activeTab === 'scaling') {
             return "#e6e8ec";
         }

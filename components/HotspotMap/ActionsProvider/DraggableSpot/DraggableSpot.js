@@ -2,7 +2,7 @@ import { useCallback } from "react";
 const d3 = require("d3-scale");
 
 
-export default function DraggableSpot({ data, setData, svgRef, dragging, setDragging, setHotspotSet, activeMapAction, cursorRef, mapRef }) {
+export default function DraggableSpot({ data, setData, svgRef, dragging, setDragging, setHotspotSet, activeMapAction, cursorRef, mapRef, targetSections }) {
 
     const HOTSPOT_COLORS = [
         "rgba(227, 81, 81, 1)",
@@ -59,6 +59,7 @@ export default function DraggableSpot({ data, setData, svgRef, dragging, setDrag
     const computeSeatDistances = (data, hotspot) => {
         let distances = [];
         Object.values(data.seats).map((seat) => {
+            if (!targetSections.includes(seat.sectionId)) return;
             const distance = euclideanDistance(seat, hotspot);
             seat.distance = distance;
             distances.push(distance);
@@ -104,6 +105,7 @@ export default function DraggableSpot({ data, setData, svgRef, dragging, setDrag
             .range(HOTSPOT_COLORS); // Output range
 
         Object.values(newData.seats).forEach((seat) => {
+            if (!targetSections.includes(seat.sectionId)) return;
             const normalizedDistance = (seat.distance - minDistance) / (maxDistance - minDistance);
             const color = colorScale(normalizedDistance);
 
