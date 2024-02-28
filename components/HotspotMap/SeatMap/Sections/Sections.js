@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useActions } from "../../ActionsProvider/ActionsProvider";
 
 export default function Sections({ 
@@ -75,40 +75,45 @@ export default function Sections({
         }
     };
 
+    const [selectedSections, setSelectedSections] = useState([]);
+
     const handleSectionSelect = (section) => {
         if (activeMapAction === 4) return;
 
         let updatedData = { ...data };
-        let seatIds = [];
-        // Handle GA and seated differently
-        if (section?.zoomable) {
-            // seated
-            seatIds = getSeatIdsForZoomableSection(section, updatedData.rows, updatedData.seats);
-        } else {
-            // ga section
-            getSeatIdsForNonZoomableSection(section, updatedData.sections);
-        }
-
-        setSectionsInFloor((prev) => {
-            // Creating a copy of the array for immutability
-            const updatedSections = [...prev];
-        
-            // Check if the section for the selectingIndex exists
-            if (updatedSections[selectingIndex]) {
-                // Check if the sectionId is already in the array
-                if (!updatedSections[selectingIndex].includes(section.sectionId)) {
-                    updatedSections[selectingIndex].push(section.sectionId);
-                }
+        if (!selectedSections.includes(section.sectionId)) {
+            let seatIds = [];
+            // Handle GA and seated differently
+            if (section?.zoomable) {
+                // seated
+                seatIds = getSeatIdsForZoomableSection(section, updatedData.rows, updatedData.seats);
             } else {
-                // Create a new array with the sectionId at the selectingIndex
-                updatedSections[selectingIndex] = [section.sectionId];
+                // ga section
+                getSeatIdsForNonZoomableSection(section, updatedData.sections);
             }
-            
-            // Return the updated array
-            return updatedSections;
-        });
 
-        setData(updatedData);
+            setSectionsInFloor((prev) => {
+                // Creating a copy of the array for immutability
+                const updatedSections = [...prev];
+            
+                // Check if the section for the selectingIndex exists
+                if (updatedSections[selectingIndex]) {
+                    // Check if the sectionId is already in the array
+                    if (!updatedSections[selectingIndex].includes(section.sectionId)) {
+                        updatedSections[selectingIndex].push(section.sectionId);
+                    }
+                } else {
+                    // Create a new array with the sectionId at the selectingIndex
+                    updatedSections[selectingIndex] = [section.sectionId];
+                }
+                
+                // Return the updated array
+                return updatedSections;
+            });
+
+            setSelectedSections(prev => [...prev, section.sectionId]);
+            setData(updatedData);
+        }
     };
 
     const getSeatIdsForZoomableSection = (section, rows, seats) => {

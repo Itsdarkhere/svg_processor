@@ -2,7 +2,7 @@ import { useCallback } from "react";
 const d3 = require("d3-scale");
 
 
-export default function DraggableSpot({ data, setData, svgRef, dragging, setDragging, setHotspotSet, activeMapAction, cursorRef, mapRef, targetSections }) {
+export default function DraggableSpot({ data, setData, svgRef, dragging, setDragging, hasSetHotspotForIndex, activeMapAction, cursorRef, mapRef, targetSections }) {
 
     const HOTSPOT_COLORS = [
         "rgba(227, 81, 81, 1)",
@@ -30,7 +30,7 @@ export default function DraggableSpot({ data, setData, svgRef, dragging, setDrag
         const updatedData = computeDistancesAndColors(data, hotspot);
 
         setData(updatedData);
-        setHotspotSet(true);
+        hasSetHotspotForIndex();
     };
 
     const handleDragEnd = useCallback((e) => {

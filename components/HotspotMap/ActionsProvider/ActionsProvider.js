@@ -26,6 +26,7 @@ export const ActionsProvider = ({ children, data, setData, setHotspotSet }) => {
     const [activeSpot, setActiveSpot] = useState("seats");
     const [selectingIndex, setSelectingIndex] = useState(0);
     const [settingIndex, setSettingIndex] = useState(0);
+    const [settingStuff, setSettingStuff] = useState([true]);
     const [floors, setFloors] = useState(1);
     const [sectionsInFloor, setSectionsInFloor] = useState([]);
     const [hex, setHex] = useState([
@@ -43,10 +44,11 @@ export const ActionsProvider = ({ children, data, setData, setHotspotSet }) => {
     const [allDone, setAllDone] = useState(false);
 
     useEffect(() => {
+        if (!cursorRef.current) return;
         cursorRef.current.style.top = "50%"
         cursorRef.current.style.left = "50%"
         cursorRef.current.style.transform = "translate(-50%, -50%)"
-    }, [])
+    }, [activeMapAction])
 
     const continueSelecting = () => {
         if (selectingIndex === floors - 1) {
@@ -58,7 +60,38 @@ export const ActionsProvider = ({ children, data, setData, setHotspotSet }) => {
     }
 
     const continueSetting = () => {
+        if (settingIndex === floors - 1) return;
         setSettingIndex(settingIndex + 1);
+    }
+
+    const allSectionsSelected = () => {
+        const allSelectedSections = sectionsInFloor.flatMap(sectionArray => sectionArray);
+        const allExistingSections = Object.keys(data.sections);
+        return allSelectedSections.length === allExistingSections.length;
+    };
+
+    const isSelectContinueDisabled = (index) => {
+        const selectingOtherFloor = selectingIndex !== index;
+        const noSectionsInFloor = !sectionsInFloor[index];
+        if (selectingIndex === floors - 1) {
+            return selectingOtherFloor || noSectionsInFloor || !allSectionsSelected();
+        }
+        return selectingOtherFloor || noSectionsInFloor;
+    }
+
+    const hasSetHotspotForIndex = () => {
+        settingStuff[settingIndex] = false;
+        if (settingIndex === floors - 1) {
+            setHotspotSet(true);
+        }
+    }
+
+    const isContinueSettingDisabled = (index) => {
+        if (settingIndex !== index || settingIndex === floors - 1) return true;
+        if (index >= 0 && index < settingStuff.length) {
+            return settingStuff[index];
+        }
+        return true;
     }
 
     return (
@@ -82,7 +115,7 @@ export const ActionsProvider = ({ children, data, setData, setHotspotSet }) => {
                                 }
                             </div>
                         </div>
-                        <button onClick={continueSelecting} disabled={selectingIndex !== index || !sectionsInFloor[index]} className='px-5 py-2 disabled:bg-gray-300 bg-indigo-600 rounded-md text-white'>Ready?</button>
+                        <button onClick={continueSelecting} disabled={isSelectContinueDisabled(index)} className='px-5 py-2 disabled:bg-gray-300 bg-indigo-600 rounded-md text-white'>Ready?</button>
                     </div>
                 )
             })}
@@ -90,24 +123,26 @@ export const ActionsProvider = ({ children, data, setData, setHotspotSet }) => {
                 return (
                     <div key={index} className={`${settingIndex === index && 'ring-4 ring-indigo-600'} p-5 bg-white text-zinc-800 rounded-lg flex flex-row items-center justify-between`}>
                         <h3 className="text-xl uppercase text-zinc-400 text-center font-bold tracking-[0.3em]">PLACE HOTSPOT FOR FLOOR {index}</h3>
-                        <button onClick={continueSetting} disabled={settingIndex !== index} className='px-5 py-2 disabled:bg-gray-300 bg-indigo-600 rounded-md text-white'>Continue?</button>
+                        <button onClick={continueSetting} disabled={isContinueSettingDisabled(index)} className='px-5 py-2 disabled:bg-gray-300 bg-indigo-600 rounded-md text-white'>Continue?</button>
                     </div>
                 )
             })}
             <div id="mapp" ref={mapRef} className={`cursor-pointer ${dragging && 'indicate-drag'}`}>
                 {children}
-                <DraggableSpot 
-                    data={data}
-                    setData={setData}
-                    svgRef={svgRef}
-                    dragging={dragging} 
-                    setDragging={setDragging} 
-                    activeMapAction={activeMapAction} 
-                    setHotspotSet={setHotspotSet}
-                    cursorRef={cursorRef} 
-                    mapRef={mapRef} 
-                    targetSections={sectionsInFloor[settingIndex]}
-                />
+                {activeMapAction === 4 &&  
+                    <DraggableSpot 
+                        data={data}
+                        setData={setData}
+                        svgRef={svgRef}
+                        dragging={dragging} 
+                        setDragging={setDragging} 
+                        activeMapAction={activeMapAction} 
+                        hasSetHotspotForIndex={hasSetHotspotForIndex}
+                        cursorRef={cursorRef} 
+                        mapRef={mapRef} 
+                        targetSections={sectionsInFloor[settingIndex]}
+                    />
+                }
             </div>
         </ActionsContext.Provider>
     );
