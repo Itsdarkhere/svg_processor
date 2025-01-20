@@ -106,7 +106,7 @@ export default function Home() {
       </div>
 
       <div className=' z-30 flex justify-end items-center fixed left-0 bottom-0 right-0 bg-neutral-800 py-6 px-10'>
-        <button disabled={isContinueDisabled()} onClick={handleContinue} className="btn px-8 text-white btn-primary">{continueText()}</button>
+        <button onClick={handleContinue} className="btn px-8 text-white btn-primary">{continueText()}</button>
       </div>
     </main>
   );
@@ -121,6 +121,8 @@ export interface Data {
 
 export interface SectionData {
   sectionId: string | undefined,
+  sectionNumber: string,
+  sectionName: string,
   path: string | null;
   zoomable: boolean;
   fill: string | null,
@@ -139,6 +141,8 @@ export interface SectionData {
 export interface RowData {
   rowId: string;
   sectionId: string,
+  rowNumber: string,
+  sectionNumber: string,
   path: string | undefined;
   seats: string[];
   screenshot: string | null;
@@ -154,6 +158,9 @@ export interface SeatData {
   seatId: string;
   sectionId: string;
   rowId: string;
+  sectionNumber: string,
+  rowNumber: string,
+  seatNumber: string
 }
 
 export interface Ticket {

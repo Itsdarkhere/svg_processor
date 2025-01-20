@@ -13,6 +13,7 @@ export default function Section({ section, data}) {
     };
 
 
+    console.log("FE SECTIONS: ", section)
     return (
         <g key={section.sectionId}>
             <path

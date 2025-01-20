@@ -8,7 +8,7 @@
 	position: relative;
 	background-color: #f4f5f6;
 	width: 700px;
-	height: 400px;
+	height: 700px;
 	.map_svg {
 		width: 100%;
         height: 100%;
@@ -16,7 +16,7 @@
         background-position-y: center;
         background-size: contain;
         background-repeat: no-repeat;
-		background-image: url('./base.svg');
+		background-image: url('./ogden_bg.svg');
 	}
 	.path_non_visual {
 		pointer-events: none;

@@ -141,6 +141,7 @@ export default function Sections({
         sections[section.sectionId].floorfill = hex[selectingIndex];
     };
 
+    console.log("hotspotmap data.sections: ", data.sections)
     return (
         <g className='polygons'>
             {data?.sections && Object.values(data.sections).map((section) => {

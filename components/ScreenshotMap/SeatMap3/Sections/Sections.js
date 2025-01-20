@@ -10,7 +10,7 @@ export default function Sections({
         <g className='polygons'>
             {data?.sections && Object.values(data.sections).map((section, i) => {
                 return (
-                    <Section section={section} i={i} key={i} selected={section?.sectionId === selectedIds.section} svgRef={svgRef} />
+                    <Section section={section} i={i} key={i} selected={section?.sectionId === 1} svgRef={svgRef} />
                 )
             })}
         </g>

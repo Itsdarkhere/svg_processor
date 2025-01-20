@@ -1,285 +1,360 @@
-'use client'
+"use client";
 import { Data, RowData, SeatData, SectionData } from "@/app/page";
-import { Dispatch, SetStateAction, useState } from "react"
+import { Dispatch, SetStateAction, useState } from "react";
+import { v4 as uuidv4 } from "uuid";
 
-export default function Parser(
-    { setUploaded, setResult, setFileName }: 
-    { setUploaded: Dispatch<SetStateAction<boolean>>, setResult: Dispatch<SetStateAction<Data>>, setFileName: Dispatch<SetStateAction<string>>    
-}) {    
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const file = event.target.files ? event.target.files[0] : null;
-        if (file) {
-          const reader = new FileReader();
-          reader.readAsText(file);
-          reader.onload = (e: ProgressEvent<FileReader>) => {
-            console.log("onload");
-            const svgString = e.target?.result as string;
-            const parsedData = parseSVG(svgString);
-            setRowArea(parsedData);
-    
-            // Get the file name without the ".svg" extension
-            const fileName = file.name;
-            const svgNameWithoutExtension = fileName.slice(0, fileName.lastIndexOf('.svg'));
-            setFileName(svgNameWithoutExtension);
-            setUploaded(true);
-          }
-        }
-    }
-    
-    const parseSVG = (svgString: string) => {
-        const parser = new DOMParser();
-        const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
-        const sections = Array.from(svgDoc.querySelectorAll('g[class^="sec-"]')).filter((el) => {
-          let as = el.className as unknown as SVGAnimatedString;
-          return /\bsec-\d+\b(?!\-)/.test(as.baseVal);
-        });
-    
-        let uniqueRowNumber = 0;
-        const sectionData: { [key: string]: SectionData } = {};
-        const rowData: { [key: string]: RowData } = {};
-        const seatData: { [key: string]: SeatData } = {};
-    
-        sections.forEach((section) => {
-          let combinedData = undefined;
-          const sectionInfo = parseSection(section);
-          if (sectionInfo.isZoomable) {
-            if (sectionInfo.rows.length > 0) {
-              const rowsData = parseRows(sectionInfo);
-              // Assign
-              Object.assign(rowData, rowsData.rowData);
-              Object.assign(seatData, rowsData.seatData);
-            } else {
-              uniqueRowNumber++;
-              // If no rows are found, look for direct seats
-              combinedData = parseSeatsWithVirtualRowData(uniqueRowNumber, sectionInfo.seats, sectionInfo);
-              // Assign
-              Object.assign(seatData, combinedData.seatData);
-              rowData[combinedData.virtualRowData.rowId] = combinedData.virtualRowData;
-            }
-          }
-    
-          let sectionRowsArray = [];
-    
-          if (combinedData?.virtualRowData?.rowId) {
-            sectionRowsArray.push(combinedData.virtualRowData.rowId);
-          } else {
-            sectionRowsArray = Object.values(sectionInfo.rows).map(element => element.getAttribute('class')!);
-          }
-    
-          sectionData["sec-" + sectionInfo.sectionNumber!] = generateSectionData(sectionInfo, sectionRowsArray);
-        });
-      
-        return { sections: sectionData, rows: rowData, seats: seatData };
-    }
-    
-    const parseSection = (section: Element) => {
-        const sectionNumber = section.getAttribute('class')?.split(' ')[0].split('-')[1];
-        const zoomable = section.getAttribute('class')?.split(' ')[1];
-    
-        const identifierGroup = section.querySelector(`g[class^="identifier"]`);
-        const paths = identifierGroup?.querySelectorAll('path');
-        let sectionP: SVGPathElement | null = null;
-        let identifier: SVGPathElement | null = null;
-
-        if (paths) {
-          paths.forEach(path => {
-            if (path.classList.contains('overlay')) {
-              sectionP = path;
-            } else {
-              identifier = path;
-            }
-          });
-        } else {
-          console.error('No identifier paths found in section');
-        }
-
-        // Force non-null
-        sectionP = sectionP!;
-        identifier = identifier!;
-
-        const fill = sectionP?.getAttribute('fill');
-        const stroke = sectionP?.getAttribute('stroke');
-        const strokeWidth = sectionP?.getAttribute('stroke-width');
-        const sectionPath = sectionP?.getAttribute('d') || null;
-        // Identifier is like the text above a section
-        const identifierTextPath = identifier?.getAttribute('d') || null;
-        const identifierTextFill = identifier?.getAttribute('fill') || null;
-        const identifierTextOpacity = identifier?.getAttribute('fill-opacity') || null;
-    
-        // Check if section is zoomable, if yes then we need seats etc, otherwise we dont
-        // In that case we add ticket directly to section
-        let isZoomable = false;
-        if (zoomable === 'YZ') {
-          isZoomable = true;
-        }
-    
-        const rows = section.querySelectorAll(`g[class^="sec-${sectionNumber}-row-"]`);
-        // If no rows find seats directly
-        let seats = undefined;
-        if (rows.length === 0) {
-          seats = section.querySelectorAll(`rect[class^="sec-${sectionNumber}-seat-"]`);
-        }
-    
-        return {
-          sectionNumber,
-          zoomable,
-          fill,
-          stroke,
-          strokeWidth,
-          isZoomable,
-          sectionPath,
-          rows,
-          seats,
-          identifierTextPath,
-          identifierTextFill,
-          identifierTextOpacity,
-        }
-    }
-
-    const parseSeat = (seat: Element) => {
-        const cx = parseFloat(seat.getAttribute('x') || '0');
-        const cy = parseFloat(seat.getAttribute('y') || '0');
-        const w = parseFloat(seat.getAttribute('width') || '0');
-        const h = parseFloat(seat.getAttribute('height') || '0');
-    
-        return {
-          cx,
-          cy,
-          w,
-          h,
-        }
-    }
-    
-    
-    const parseRows = (sectionInfo: any) => {
-        const rowData: { [key: string]: RowData } = {};
-        const seatData: { [key: string]: SeatData } = {};
-      
-        sectionInfo.rows.forEach((row: any) => {
-          const rowId = `${row.getAttribute('class')}`;
-          const seatsData = parseSeats(row, sectionInfo, row.getAttribute('class'));
-          rowData[rowId] = { rowId, sectionId: "sec-" + sectionInfo.sectionNumber!, seats: seatsData.seatIds, path: undefined, screenshot: null };
-          Object.assign(seatData, seatsData.seatData);
-        });
-      
-        return { rowData, seatData };
-    };
-    
-    const parseSeatsWithVirtualRowData = (uniqueRowNumber: number, seats: any, sectionInfo: any) => {
-        const seatData: { [key: string]: SeatData } = {};
-        const rowId = uniqueRowNumber.toString();
-
-        seats.forEach((seat: any) => {
-            let classname = seat.getAttribute('class');
-            if (classname) {
-                classname = classname.replace(/(sec-\d+)-/, `$1-row-${rowId}-`);
-                const seatInfo = parseSeat(seat);
-                seatData[classname] = { 
-                    cx: seatInfo.cx, 
-                    cy: seatInfo.cy, 
-                    w: seatInfo.w, 
-                    h: seatInfo.h, 
-                    selected: false, 
-                    seatId: classname, 
-                    sectionId: "sec-" + sectionInfo.sectionNumber!,
-                    rowId: rowId  // Assigning the rowId
-                };
-            }
-        });
-    
-        // const ticket = createTicket(rowId, `Section ${sectionInfo.sectionNumber} Row ${rowId}`);
-        const virtualRowData = {
-            rowId,
-            sectionId: "sec-" + sectionInfo.sectionNumber!,
-            seats: Object.keys(seatData),
-            path: undefined, // No specific path for the virtual row,
-            screenshot: null,
-        };
-    
-        return { seatData, virtualRowData };
-    };
-    
-    const parseSeats = (row: Element, sectionInfo: any, rowId: number) => {
-      const rowNumber = row.getAttribute('class')?.split('-')[3];
-      const seats = row.querySelectorAll(`rect[class^="sec-${sectionInfo.sectionNumber}-row-${rowNumber}-seat-"]`);
-      
-      const seatData: { [key: string]: SeatData } = {};
-      const seatIds: string[] = [];
-    
-      seats.forEach((seat) => {
-        const classname = seat.getAttribute('class');
-        if (classname) {
-          const seatInfo = parseSeat(seat);
-          seatData[classname] = { cx: seatInfo.cx, cy: seatInfo.cy, w: seatInfo.w, h: seatInfo.h, selected: false, seatId: classname, sectionId: "sec-" + sectionInfo.sectionNumber!, rowId: rowId.toString() };
-          seatIds.push(classname);
-        }
-      });
-    
-      return { seatData, seatIds };
-    };
-    
-    const generateSectionData = (sectionInfo: any, rows: string[]) => {
-      return {
-        sectionId: "sec-" + sectionInfo.sectionNumber,
-        path: sectionInfo.sectionPath,
-        rows: rows,
-        zoomable: sectionInfo.isZoomable,
-        fill: sectionInfo.fill,
-        stroke: sectionInfo.stroke,
-        strokeWidth: sectionInfo.strokeWidth,
-        identifier: {
-          path: sectionInfo.identifierTextPath,
-          fill: sectionInfo.identifierTextFill,
-          opacity: sectionInfo.identifierTextOpacity,
-        },
-        screenshot: null,
-      };
-    };
-    
-    const setRowArea = (data: Data) => {
-      let updatedData = { ...data };
-
-      Object.values(updatedData.rows).forEach((row) => {
-          let minX = Infinity;
-          let minY = Infinity;
-          let maxX = -Infinity;
-          let maxY = -Infinity;
-
-          row.seats.forEach((seatId: string) => {
-              let seat = updatedData.seats[seatId];
-              minX = Math.min(minX, seat.cx);
-              minY = Math.min(minY, seat.cy);
-              maxX = Math.max(maxX, seat.cx + seat.w);
-              maxY = Math.max(maxY, seat.cy + seat.h);
-          });
-
-          const widthBuffer = Math.max(...row.seats.map(id => updatedData.seats[id].w));
-          const heightBuffer = Math.max(...row.seats.map(id => updatedData.seats[id].h));
-
-          minX -= widthBuffer / 2;
-          maxX += widthBuffer / 2;
-          minY -= heightBuffer / 2;
-          maxY += heightBuffer / 2;
-
-          let pathData = `M ${minX} ${minY} L ${maxX} ${minY} L ${maxX} ${maxY} L ${minX} ${maxY} Z`;
-
-          // Store the path in the row
-          row.path = pathData;
-      });
-
-      setResult(updatedData);
-    };
-
-    return (
-        <div className=" max-w-5xl flex flex-col justify-center items-center">
-            <input
-              type="file"
-              name="svgFile"
-              id="svgFile"
-              accept=".svg"
-              onChange={handleChange}
-              className="file-input w-full max-w-xs"
-            />
-        </div>
-    )
+interface ParsedData {
+  sections: { [key: string]: SectionData };
+  rows: { [key: string]: RowData };
+  seats: { [key: string]: SeatData };
 }
+
+export default function Parser({
+  setUploaded,
+  setResult,
+  setFileName,
+}: {
+  setUploaded: Dispatch<SetStateAction<boolean>>;
+  setResult: Dispatch<SetStateAction<Data>>;
+  setFileName: Dispatch<SetStateAction<string>>;
+}) {
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const svgString = e.target?.result as string;
+      const parsedData = parseSVG(svgString);
+      const processedData = processRowAreas(parsedData);
+
+      setResult(processedData);
+      setFileName(file.name.replace(".svg", ""));
+      setUploaded(true);
+    };
+    reader.readAsText(file);
+  };
+
+  interface UUIDArrays {
+    [key: string]: string[];
+  }
+
+  const generateUUIDs = () => {
+    const uuidArrays: UUIDArrays = {};
+    
+    // Generate 10 arrays
+    for (let i: number = 1; i <= 10; i++) {
+        const uuidArray: string[] = Array.from(
+            { length: 200 }, 
+            (): string => uuidv4()
+        );
+        uuidArrays[`array${i}`] = uuidArray;
+    }
+    
+    // Format and log in a way that's easy to copy
+    const jsonString = JSON.stringify(uuidArrays, null, 2);
+    console.log('Copy the following JSON:');
+    console.log(jsonString);
+    
+    // Also log a JavaScript object literal format for direct copying
+    console.log('\nOr copy as JavaScript object:');
+    console.log(`const uuidArrays = ${jsonString};`);
+  };
+
+  return (
+    <div className='max-w-5xl flex flex-col justify-center items-center'>
+      <button
+        onClick={generateUUIDs}
+        className=' p-6 bg-white rounded-md text-black active:scale-95 outline-red-400'
+      >
+        GENERATE UUIDS
+      </button>
+      <input
+        type='file'
+        name='svgFile'
+        id='svgFile'
+        accept='.svg'
+        onChange={handleFileUpload}
+        className='file-input w-full max-w-xs'
+      />
+    </div>
+  );
+}
+
+const parseSVG = (svgString: string): ParsedData => {
+  const parser = new DOMParser();
+  const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
+
+  const sections = getSections(svgDoc);
+  console.log("parseSVG sections: ", sections)
+  const { sectionData, rowData, seatData } = parseSections(sections);
+
+  return {
+    sections: sectionData,
+    rows: rowData,
+    seats: seatData,
+  };
+};
+
+const getSections = (svgDoc: Document): Element[] => {
+  return Array.from(svgDoc.querySelectorAll('g[class^="sec-"]')).filter(
+    (el) => {
+      const className = (el.className as unknown as SVGAnimatedString).baseVal;
+      return /^sec-[^-]+$/.test(className);
+    }
+  );
+};
+
+const parseSections = (sections: Element[]) => {
+  console.log("parseSections: ", sections);
+  let uniqueRowNumber = 0;
+  const sectionData: { [key: string]: SectionData } = {};
+  const rowData: { [key: string]: RowData } = {};
+  const seatData: { [key: string]: SeatData } = {};
+
+  sections.forEach((section, sectionIndex) => {
+    const sectionId = uuidv4();
+    const sectionInfo = extractSectionInfo(section, sectionId);
+    const { newRowData, newSeatData, sectionRows } = processSectionContent(
+      section,
+      sectionInfo,
+      uniqueRowNumber
+    );
+
+    Object.assign(rowData, newRowData);
+    Object.assign(seatData, newSeatData);
+
+    sectionData[sectionId] = generateSectionMetadata(sectionInfo, sectionRows);
+
+    if (!sectionInfo.hasRows) uniqueRowNumber++;
+  });
+
+  return { sectionData, rowData, seatData };
+};
+
+const extractSectionInfo = (section: Element, sectionId: string) => {
+  const className = section.getAttribute("class") || "";
+  const [sectionClass, zoomableClass] = className.split(" ");
+  const [_, sectionNumber] = sectionClass.split("-");
+  const isZoomable = zoomableClass === "YZ";
+
+  const identifierGroup = section.querySelector('g[class^="identifier"]');
+  const [sectionPath, identifierPath] = Array.from(
+    identifierGroup?.querySelectorAll("path") || []
+  );
+
+  // Generate a section name (can be customized based on your needs)
+  const sectionName = `Section ${sectionNumber}`;
+  return {
+    id: sectionId,
+    sectionNumber,
+    sectionName,
+    isZoomable,
+    fill: sectionPath?.getAttribute("fill"),
+    stroke: sectionPath?.getAttribute("stroke"),
+    strokeWidth: sectionPath?.getAttribute("stroke-width"),
+    path: sectionPath?.getAttribute("d"),
+    identifier: {
+      path: identifierPath?.getAttribute("d"),
+      fill: identifierPath?.getAttribute("fill"),
+      opacity: identifierPath?.getAttribute("fill-opacity"),
+    },
+    hasRows:
+      section.querySelectorAll(`g[class^="sec-${sectionNumber}-row-"]`).length >
+      0,
+  };
+};
+
+const generateSectionMetadata = (
+  sectionInfo: any,
+  rows: string[]
+): SectionData => {
+  return {
+    sectionId: sectionInfo.id,
+    sectionNumber: sectionInfo.sectionNumber,
+    sectionName: sectionInfo.sectionName,
+    path: sectionInfo.path,
+    rows: rows,
+    zoomable: sectionInfo.isZoomable,
+    fill: sectionInfo.fill,
+    stroke: sectionInfo.stroke,
+    strokeWidth: sectionInfo.strokeWidth,
+    identifier: {
+      path: sectionInfo.identifier.path,
+      fill: sectionInfo.identifier.fill,
+      opacity: sectionInfo.identifier.opacity,
+    },
+    screenshot: null,
+  };
+};
+
+const parseRows = (rows: NodeListOf<Element>, sectionInfo: any) => {
+  const rowData: { [key: string]: RowData } = {};
+  const seatData: { [key: string]: SeatData } = {};
+
+  rows.forEach((row, rowIndex) => {
+    const rowId = uuidv4();
+    const rowNumber = rowIndex + 1;
+
+    // Get all seats for this row
+    const seats = row.querySelectorAll(
+      `rect[class^="sec-${sectionInfo.sectionNumber}-row-"]`
+    );
+    console.log("seats: ", seats);
+
+    const seatIds: string[] = [];
+
+    seats.forEach((seat, seatIndex) => {
+      const seatId = uuidv4();
+      const metrics = extractSeatMetrics(seat);
+
+      seatData[seatId] = {
+        seatId: seatId,
+        sectionId: sectionInfo.id,
+        rowId: rowId,
+        sectionNumber: sectionInfo.sectionNumber,
+        rowNumber: rowNumber.toString(),
+        seatNumber: (seatIndex + 1).toString(),
+        selected: false,
+        ...metrics,
+      };
+
+      seatIds.push(seatId);
+    });
+
+    rowData[rowId] = {
+      rowId: rowId,
+      sectionId: sectionInfo.id,
+      sectionNumber: sectionInfo.sectionNumber,
+      rowNumber: rowNumber.toString(),
+      seats: seatIds,
+      path: undefined,
+      screenshot: null,
+    };
+  });
+
+  return { rowData, seatData };
+};
+
+const createVirtualRow = (
+  seats: NodeListOf<Element>,
+  uniqueRowNumber: number,
+  sectionInfo: any
+) => {
+  const seatData: { [key: string]: SeatData } = {};
+  const rowId = uuidv4();
+
+  const seatIds = Array.from(seats).map((seat, index) => {
+    const seatId = uuidv4();
+    const metrics = extractSeatMetrics(seat);
+
+    seatData[seatId] = {
+      sectionId: sectionInfo.id,
+      rowId: rowId,
+      seatId: seatId,
+      sectionNumber: sectionInfo.sectionNumber,
+      rowNumber: uniqueRowNumber.toString(),
+      seatNumber: (index + 1).toString(),
+      selected: false,
+      ...metrics,
+    };
+
+    return seatId;
+  });
+
+  const virtualRowData: RowData = {
+    rowId: rowId,
+    sectionId: sectionInfo.id,
+    sectionNumber: sectionInfo.sectionNumber,
+    rowNumber: uniqueRowNumber.toString(),
+    seats: seatIds,
+    path: undefined,
+    screenshot: null,
+  };
+
+  return { virtualRowData, seatData };
+};
+
+// Rest of the utility functions remain the same
+const extractSeatMetrics = (seat: Element) => ({
+  cx: parseFloat(seat.getAttribute("x") || "0"),
+  cy: parseFloat(seat.getAttribute("y") || "0"),
+  w: parseFloat(seat.getAttribute("width") || "0"),
+  h: parseFloat(seat.getAttribute("height") || "0"),
+});
+
+const processRowAreas = (data: ParsedData): ParsedData => {
+  const updatedData = { ...data };
+
+  Object.values(updatedData.rows).forEach((row) => {
+    const seatMetrics = row.seats.map((seatId) => ({
+      ...updatedData.seats[seatId],
+      maxX: updatedData.seats[seatId].cx + updatedData.seats[seatId].w,
+      maxY: updatedData.seats[seatId].cy + updatedData.seats[seatId].h,
+    }));
+
+    const bounds = calculateRowBounds(seatMetrics);
+    row.path = generateRowPath(bounds);
+  });
+
+  return updatedData;
+};
+
+const calculateRowBounds = (seatMetrics: any[]) => {
+  const maxWidth = Math.max(...seatMetrics.map((seat) => seat.w));
+  const maxHeight = Math.max(...seatMetrics.map((seat) => seat.h));
+
+  return {
+    minX: Math.min(...seatMetrics.map((seat) => seat.cx)) - maxWidth / 2,
+    minY: Math.min(...seatMetrics.map((seat) => seat.cy)) - maxHeight / 2,
+    maxX: Math.max(...seatMetrics.map((seat) => seat.maxX)) + maxWidth / 2,
+    maxY: Math.max(...seatMetrics.map((seat) => seat.maxY)) + maxHeight / 2,
+  };
+};
+
+const generateRowPath = (bounds: any) => {
+  return `M ${bounds.minX} ${bounds.minY} L ${bounds.maxX} ${bounds.minY} L ${bounds.maxX} ${bounds.maxY} L ${bounds.minX} ${bounds.maxY} Z`;
+};
+
+const processSectionContent = (
+  section: Element,
+  sectionInfo: any,
+  uniqueRowNumber: number
+) => {
+  if (!sectionInfo.isZoomable) {
+    return { newRowData: {}, newSeatData: {}, sectionRows: [] };
+  }
+  console.log("sectionInfo: ", sectionInfo);
+  console.log("section: ", section);
+  console.log("Full section content:", section.innerHTML);
+
+  const rows = section.querySelectorAll(
+    `g[class^="sec-${sectionInfo.sectionNumber}-row-"]`
+  );
+
+  console.log("rows: ", rows);
+  if (rows.length > 0) {
+    const { rowData, seatData } = parseRows(rows, sectionInfo);
+    return {
+      newRowData: rowData,
+      newSeatData: seatData,
+      sectionRows: Object.keys(rowData),
+    };
+  }
+
+  const seats = section.querySelectorAll(
+    `rect[class^="sec-${sectionInfo.sectionNumber}-seat-"]`
+  );
+  console.log("seats: ", seats);
+  const { virtualRowData, seatData } = createVirtualRow(
+    seats,
+    uniqueRowNumber,
+    sectionInfo
+  );
+
+  return {
+    newRowData: { [virtualRowData.rowId]: virtualRowData },
+    newSeatData: seatData,
+    sectionRows: [virtualRowData.rowId],
+  };
+};

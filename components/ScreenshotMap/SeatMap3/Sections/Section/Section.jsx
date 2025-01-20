@@ -46,16 +46,17 @@ export default function Section({ section, i, selected, svgRef }) {
         }
     }, [selected]);
 
+    console.log("section in SSMAP: ", section)
     return (
         <g key={section.sectionId}>
             <path
-                fill={selected ? section.fill : "#E6E8EC"}
+                fill={selected ? "#E6DFF8" : "#E6E8EC"}
                 filter={section?.filter}
                 d={section.path}
                 id={section.sectionId}
                 className={`path`}
-                strokeWidth={section?.strokeWidth}
-                stroke={selected ? section?.stroke : "#E6E8EC"}
+                strokeWidth={24}
+                stroke={selected ? "#6531F5" : "#E6E8EC"}
             ></path>
             <path d={section?.identifier?.path} className="path-text" id={`path-text-${i}`} fill={section?.identifier?.fill} opacity={0}></path>
         </g>

@@ -7,8 +7,8 @@ export default function GLMap({
     console.log(data);
     const desiredWidth = 608; // The width you want to fit your content into
     const desiredHeight = 708; // The height you want to fit your content into
-    const originalWidth = 6088; // Original content width
-    const originalHeight = 7088; // Original content height
+    const originalWidth = 10240; // Original content width
+    const originalHeight = 7680; // Original content height
 
     // Calculate scale factors
     const scaleX = desiredWidth / originalWidth;

@@ -31,7 +31,7 @@ export default function Confirm({ result }: { result: Data}) {
                 JSON entire result
                 <p className=" text-sm">If theres something weird in the &quot;condensed information&quot; you can have a closer look here</p>
             </div>
-            <pre className=" w-full p-3 bg-zinc-600 mt-5 rounded-lg overflow-hidden text-ellipsis">{JSON.stringify(result, null, 2)}</pre>
+            <pre className=" w-full p-3 bg-zinc-600 mt-5 rounded-lg max-h-96 overflow-scroll text-ellipsis">{JSON.stringify(result, null, 2)}</pre>
         </div>
     )
 }

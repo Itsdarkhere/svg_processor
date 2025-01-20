@@ -16,12 +16,6 @@ export default function Row({ row, svgRef, i, selectedIds }) {
                 const rowBbox = pathText.getBBox();
                 const centerX = rowBbox.x + rowBbox.width / 2;
                 const centerY = rowBbox.y + rowBbox.height / 2;
-                // const secWidth = secBbox.width * 0.6;
-                // const secHeight = secBbox.height * 0.6;
-                // const r = secHeight > secWidth ? secWidth : secHeight;
-                // const adjustedR = r / 2;
-                // const finalR = adjustedR < 100 ? 100 : adjustedR;
-
                 // Create a circle element
                 // Create the big circle
                 const bigCircle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
