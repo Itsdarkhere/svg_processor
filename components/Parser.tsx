@@ -42,23 +42,22 @@ export default function Parser({
 
   const generateUUIDs = () => {
     const uuidArrays: UUIDArrays = {};
-    
+
     // Generate 10 arrays
     for (let i: number = 1; i <= 10; i++) {
-        const uuidArray: string[] = Array.from(
-            { length: 200 }, 
-            (): string => uuidv4()
-        );
-        uuidArrays[`array${i}`] = uuidArray;
+      const uuidArray: string[] = Array.from({ length: 200 }, (): string =>
+        uuidv4()
+      );
+      uuidArrays[`array${i}`] = uuidArray;
     }
-    
+
     // Format and log in a way that's easy to copy
     const jsonString = JSON.stringify(uuidArrays, null, 2);
-    console.log('Copy the following JSON:');
+    console.log("Copy the following JSON:");
     console.log(jsonString);
-    
+
     // Also log a JavaScript object literal format for direct copying
-    console.log('\nOr copy as JavaScript object:');
+    console.log("\nOr copy as JavaScript object:");
     console.log(`const uuidArrays = ${jsonString};`);
   };
 
@@ -106,8 +105,6 @@ const getSections = (svgDoc: Document): Element[] => {
 };
 
 const parseSections = (sections: Element[]) => {
-  console.log("parseSections: ", sections);
-  let uniqueRowNumber = 0;
   const sectionData: { [key: string]: SectionData } = {};
   const rowData: { [key: string]: RowData } = {};
   const seatData: { [key: string]: SeatData } = {};
@@ -118,15 +115,12 @@ const parseSections = (sections: Element[]) => {
     const { newRowData, newSeatData, sectionRows } = processSectionContent(
       section,
       sectionInfo,
-      uniqueRowNumber
     );
 
     Object.assign(rowData, newRowData);
     Object.assign(seatData, newSeatData);
 
     sectionData[sectionId] = generateSectionMetadata(sectionInfo, sectionRows);
-
-    if (!sectionInfo.hasRows) uniqueRowNumber++;
   });
 
   return { sectionData, rowData, seatData };
@@ -194,7 +188,7 @@ const parseRows = (rows: NodeListOf<Element>, sectionInfo: any) => {
 
   rows.forEach((row: any, rowIndex) => {
     const rowId = uuidv4();
-    const rowNumber = rowIndex + 1;
+    const [_, __, ___, rowNumber] = row.className.baseVal.split("-");
 
     // Get all seats for this row
     const seats = row.querySelectorAll(
@@ -204,12 +198,13 @@ const parseRows = (rows: NodeListOf<Element>, sectionInfo: any) => {
     // Find the path element for this row
     const pathSelector = `path[class="${row.className.baseVal}-path"]`;
     const pathElement = row.querySelector(pathSelector);
-    const pathD = pathElement ? pathElement.getAttribute('d') : undefined;
+    const pathD = pathElement ? pathElement.getAttribute("d") : undefined;
 
     const seatIds: string[] = [];
 
     seats.forEach((seat: any, seatIndex: any) => {
-      const isAccessible = seat.className.baseVal.includes("DA")
+      const isAccessible = seat.className.baseVal.includes("DA");
+      const [_, __, ___, ____, _____, seatNumber] = seat.className.baseVal.split("-");
       const seatId = uuidv4();
       const metrics = extractSeatMetrics(seat);
 
@@ -218,8 +213,8 @@ const parseRows = (rows: NodeListOf<Element>, sectionInfo: any) => {
         sectionId: sectionInfo.id,
         rowId: rowId,
         sectionNumber: sectionInfo.sectionNumber,
-        rowNumber: rowNumber.toString(),
-        seatNumber: (seatIndex + 1).toString(),
+        rowNumber: rowNumber,
+        seatNumber: seatNumber,
         selected: false,
         accessible: isAccessible,
         ...metrics,
@@ -232,7 +227,7 @@ const parseRows = (rows: NodeListOf<Element>, sectionInfo: any) => {
       rowId: rowId,
       sectionId: sectionInfo.id,
       sectionNumber: sectionInfo.sectionNumber,
-      rowNumber: rowNumber.toString(),
+      rowNumber: rowNumber,
       seats: seatIds,
       path: pathD || undefined,
       screenshot: null,
@@ -326,8 +321,7 @@ const generateRowPath = (bounds: any) => {
 
 const processSectionContent = (
   section: Element,
-  sectionInfo: any,
-  uniqueRowNumber: number
+  sectionInfo: any
 ) => {
   if (!sectionInfo.isZoomable) {
     return { newRowData: {}, newSeatData: {}, sectionRows: [] };
@@ -337,28 +331,10 @@ const processSectionContent = (
     `g[class^="sec-${sectionInfo.sectionNumber}-row-"]`
   );
 
-  if (rows.length > 0) {
-    const { rowData, seatData } = parseRows(rows, sectionInfo);
-    return {
-      newRowData: rowData,
-      newSeatData: seatData,
-      sectionRows: Object.keys(rowData),
-    };
-  }
-
-  const seats = section.querySelectorAll(
-    `rect[class^="sec-${sectionInfo.sectionNumber}-seat-"]`
-  );
-  console.log("seats: ", seats);
-  const { virtualRowData, seatData } = createVirtualRow(
-    seats,
-    uniqueRowNumber,
-    sectionInfo
-  );
-
+  const { rowData, seatData } = parseRows(rows, sectionInfo);
   return {
-    newRowData: { [virtualRowData.rowId]: virtualRowData },
+    newRowData: rowData,
     newSeatData: seatData,
-    sectionRows: [virtualRowData.rowId],
+    sectionRows: Object.keys(rowData),
   };
 };
