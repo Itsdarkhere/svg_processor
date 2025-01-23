@@ -86,23 +86,21 @@ export default function Home() {
       <div className='flex z-30  justify-center bg-neutral-800 items-center py-8 fixed top-0 left-0 right-0 w-full'>
         <ul className="steps">
           <li className={stepClass(0)}>Upload SVG</li>
-          <li className={stepClass(1)}>Confirm</li>
-          <li className={stepClass(2)}>Frontend</li>
-          <li className={stepClass(3)}>Admin</li>
-          <li className={stepClass(4)}>Set HOTSPOT</li>
-          <li className={stepClass(5)}>Screenshot</li>
-          <li className={stepClass(6)}>Download Files</li>
+          <li className={stepClass(1)}>Frontend</li>
+          <li className={stepClass(2)}>Admin</li>
+          <li className={stepClass(3)}>Set HOTSPOT</li>
+          <li className={stepClass(4)}>Screenshot</li>
+          <li className={stepClass(5)}>Download Files</li>
         </ul>
       </div>
 
       <div className='py-36 px-4 min-h-screen w-full flex justify-center items-center'>
         {step === 0 && <Parser setUploaded={setUploaded} setResult={setResult} setFileName={setFileName} />}
-        {step === 1 && <Confirm result={result} />}
-        {step === 2 && <InspectFrontendMap result={result} />}
-        {step === 3 && <InspectAdminMap result={result} />}
-        {step === 4 && <SetHotspot result={result} setResult={setResult} setHotspotSet={setHotspotSet} />}
-        {step === 5 && <Screenshot setElementSSMapping={setElementSSMapping} result={result} images={images} setImages={setImages} setResult={setResult} setImagesTaken={setImagesTaken} />}
-        {step === 6 && <Download setResult={setResult} elementSSMapping={elementSSMapping} result={result} images={images} filename={fileName} />}
+        {step === 1 && <InspectFrontendMap result={result} />}
+        {step === 2 && <InspectAdminMap result={result} />}
+        {step === 3 && <SetHotspot result={result} setResult={setResult} setHotspotSet={setHotspotSet} />}
+        {step === 4 && <Screenshot setElementSSMapping={setElementSSMapping} result={result} images={images} setImages={setImages} setResult={setResult} setImagesTaken={setImagesTaken} />}
+        {step === 5 && <Download setResult={setResult} elementSSMapping={elementSSMapping} result={result} images={images} filename={fileName} />}
       </div>
 
       <div className=' z-30 flex justify-end items-center fixed left-0 bottom-0 right-0 bg-neutral-800 py-6 px-10'>
@@ -155,6 +153,7 @@ export interface SeatData {
   w: number;
   h: number;
   selected: boolean;
+  accessible: boolean;
   seatId: string;
   sectionId: string;
   rowId: string;

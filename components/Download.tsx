@@ -2,7 +2,7 @@
 import { Data } from "@/app/page";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
 
 export default function Download({
   result,
@@ -17,6 +17,7 @@ export default function Download({
   filename: string;
   elementSSMapping: any[];
 }) {
+  const resultRef = useRef(null);
   const [triggerDownload, setTriggerDownload] = useState(false);
 
   const removeBS = () => {
@@ -25,6 +26,9 @@ export default function Download({
       "screenshot",
       "allAssigned",
       "selected",
+      "floorfill",
+      "selected",
+      "distance"
     ];
     let newResults = JSON.parse(JSON.stringify(result)); // Deep clone to avoid mutations
 
@@ -59,6 +63,7 @@ export default function Download({
     }
 
     setResult(newResults);
+    resultRef.current = newResults;
     setTriggerDownload(true);
   };
 
@@ -78,7 +83,7 @@ export default function Download({
     );
 
     // Add JSON file to the zip
-    zip.file(`${filename}.json`, JSON.stringify(result));
+    zip.file(`${filename}.json`, JSON.stringify(resultRef.current));
 
     // Generate zip file and download
     zip.generateAsync({ type: "blob" }).then((content) => {

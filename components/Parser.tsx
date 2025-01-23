@@ -26,9 +26,10 @@ export default function Parser({
     reader.onload = (e) => {
       const svgString = e.target?.result as string;
       const parsedData = parseSVG(svgString);
-      const processedData = processRowAreas(parsedData);
+      // const processedData = processRowAreas(parsedData);
 
-      setResult(processedData);
+      console.log("parsedData: ", parsedData);
+      setResult(parsedData);
       setFileName(file.name.replace(".svg", ""));
       setUploaded(true);
     };
@@ -86,7 +87,6 @@ const parseSVG = (svgString: string): ParsedData => {
   const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
 
   const sections = getSections(svgDoc);
-  console.log("parseSVG sections: ", sections)
   const { sectionData, rowData, seatData } = parseSections(sections);
 
   return {
@@ -192,19 +192,24 @@ const parseRows = (rows: NodeListOf<Element>, sectionInfo: any) => {
   const rowData: { [key: string]: RowData } = {};
   const seatData: { [key: string]: SeatData } = {};
 
-  rows.forEach((row, rowIndex) => {
+  rows.forEach((row: any, rowIndex) => {
     const rowId = uuidv4();
     const rowNumber = rowIndex + 1;
 
     // Get all seats for this row
     const seats = row.querySelectorAll(
-      `rect[class^="sec-${sectionInfo.sectionNumber}-row-"]`
+      `rect[class^="${row.className.baseVal}"]`
     );
-    console.log("seats: ", seats);
+
+    // Find the path element for this row
+    const pathSelector = `path[class="${row.className.baseVal}-path"]`;
+    const pathElement = row.querySelector(pathSelector);
+    const pathD = pathElement ? pathElement.getAttribute('d') : undefined;
 
     const seatIds: string[] = [];
 
-    seats.forEach((seat, seatIndex) => {
+    seats.forEach((seat: any, seatIndex: any) => {
+      const isAccessible = seat.className.baseVal.includes("DA")
       const seatId = uuidv4();
       const metrics = extractSeatMetrics(seat);
 
@@ -216,6 +221,7 @@ const parseRows = (rows: NodeListOf<Element>, sectionInfo: any) => {
         rowNumber: rowNumber.toString(),
         seatNumber: (seatIndex + 1).toString(),
         selected: false,
+        accessible: isAccessible,
         ...metrics,
       };
 
@@ -228,7 +234,7 @@ const parseRows = (rows: NodeListOf<Element>, sectionInfo: any) => {
       sectionNumber: sectionInfo.sectionNumber,
       rowNumber: rowNumber.toString(),
       seats: seatIds,
-      path: undefined,
+      path: pathD || undefined,
       screenshot: null,
     };
   });
@@ -256,6 +262,7 @@ const createVirtualRow = (
       rowNumber: uniqueRowNumber.toString(),
       seatNumber: (index + 1).toString(),
       selected: false,
+      accessible: false,
       ...metrics,
     };
 
@@ -294,6 +301,7 @@ const processRowAreas = (data: ParsedData): ParsedData => {
     }));
 
     const bounds = calculateRowBounds(seatMetrics);
+    console.log("---GenRowPath---");
     row.path = generateRowPath(bounds);
   });
 
@@ -324,15 +332,11 @@ const processSectionContent = (
   if (!sectionInfo.isZoomable) {
     return { newRowData: {}, newSeatData: {}, sectionRows: [] };
   }
-  console.log("sectionInfo: ", sectionInfo);
-  console.log("section: ", section);
-  console.log("Full section content:", section.innerHTML);
 
   const rows = section.querySelectorAll(
     `g[class^="sec-${sectionInfo.sectionNumber}-row-"]`
   );
 
-  console.log("rows: ", rows);
   if (rows.length > 0) {
     const { rowData, seatData } = parseRows(rows, sectionInfo);
     return {
