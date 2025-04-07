@@ -41,15 +41,19 @@ export default function Parser({
   }
 
   const generateUUIDs = () => {
+    console.log("generate: ");
     const uuidArrays: UUIDArrays = {};
 
     // Generate 10 arrays
-    for (let i: number = 1; i <= 10; i++) {
-      const uuidArray: string[] = Array.from({ length: 200 }, (): string =>
+    const il = [300, 300, 300, 300, 300];
+    for (let i: number = 0; i <= il.length; i++) {
+      console.log("genwl: ", il[i]);
+      const uuidArray: string[] = Array.from({ length: il[i] }, (): string =>
         uuidv4()
       );
       uuidArrays[`array${i}`] = uuidArray;
     }
+    console.log("after loop");
 
     // Format and log in a way that's easy to copy
     const jsonString = JSON.stringify(uuidArrays, null, 2);
@@ -114,7 +118,7 @@ const parseSections = (sections: Element[]) => {
     const sectionInfo = extractSectionInfo(section, sectionId);
     const { newRowData, newSeatData, sectionRows } = processSectionContent(
       section,
-      sectionInfo,
+      sectionInfo
     );
 
     Object.assign(rowData, newRowData);
@@ -204,7 +208,10 @@ const parseRows = (rows: NodeListOf<Element>, sectionInfo: any) => {
 
     seats.forEach((seat: any, seatIndex: any) => {
       const isAccessible = seat.className.baseVal.includes("DA");
-      const [_, __, ___, ____, _____, seatNumber] = seat.className.baseVal.split("-");
+      let [_, __, ___, ____, _____, seatNumber] =
+        seat.className.baseVal.split("-");
+      seatNumber = seatNumber.split(" ")[0];
+      console.log("seatNumber: ", seatNumber);
       const seatId = uuidv4();
       const metrics = extractSeatMetrics(seat);
 
@@ -319,10 +326,7 @@ const generateRowPath = (bounds: any) => {
   return `M ${bounds.minX} ${bounds.minY} L ${bounds.maxX} ${bounds.minY} L ${bounds.maxX} ${bounds.maxY} L ${bounds.minX} ${bounds.maxY} Z`;
 };
 
-const processSectionContent = (
-  section: Element,
-  sectionInfo: any
-) => {
+const processSectionContent = (section: Element, sectionInfo: any) => {
   if (!sectionInfo.isZoomable) {
     return { newRowData: {}, newSeatData: {}, sectionRows: [] };
   }
