@@ -132,6 +132,7 @@ const parseSections = (sections: Element[]) => {
 
 const extractSectionInfo = (section: Element, sectionId: string) => {
   const className = section.getAttribute("class") || "";
+  console.log("extractSectionInfo className: ", className)
   const [sectionClass, zoomableClass] = className.split(" ");
   const [_, sectionNumber] = sectionClass.split("-");
   const isZoomable = zoomableClass === "YZ";

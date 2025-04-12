@@ -129,8 +129,6 @@ export default function DraggableSpot({ data, setData, svgRef, dragging, setDrag
             }
         })
 
-        console.log("Max Sort Order Rows: ", maxSortOrderRows, hsf);
-
         let maxSortOrderSections = -10;
         Object.values(newData.sections).forEach((section) => {
             if (section.zoomable) {

@@ -12,8 +12,6 @@ export default function Section({ section, data}) {
         }
     };
 
-
-    console.log("FE SECTIONS: ", section)
     return (
         <g key={section.sectionId}>
             <path
@@ -24,10 +22,9 @@ export default function Section({ section, data}) {
                 stroke={section?.stroke}
                 fill={selected ? '#3E8BF7' : section?.fill}
                 className={`path`}
-            >
-            </path>
+            />
             {/* Visuals, probably text */}
             <path d={section?.identifier?.path} className="path-text" fill={selected ? '#FCFCFD' : section?.identifier?.fill} opacity={1}></path>
-        </g>
-    )
+            </g>
+        )
 }

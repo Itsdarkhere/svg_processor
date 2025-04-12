@@ -74,6 +74,7 @@ export const ActionsProvider = ({ children, data, setData, setHotspotSet }) => {
     const allSelectedSections = sectionsInFloor.flatMap(
       (sectionArray) => sectionArray
     );
+    console.log("data.sections: ", data.sections)
     const allExistingSections = Object.keys(data.sections);
     console.log("allExistingSections: ", allExistingSections)
     console.log("allSectionsSelected allExistingSections.length: ", allExistingSections.length)
