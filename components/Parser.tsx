@@ -176,7 +176,7 @@ const extractSectionInfo = (section: Element, sectionId: string) => {
   );
 
   // Generate a section name (can be customized based on your needs)
-  const sectionName = `Section ${sectionNumber}`;
+  const sectionName = sectionNumber;
   return {
     id: sectionId,
     sectionNumber,
