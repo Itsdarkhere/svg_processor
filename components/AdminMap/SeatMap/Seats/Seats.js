@@ -18,6 +18,7 @@ export default function Seats({
     };
 
     const selectSeat = (id) => {
+        console.log("data.seats[id]: ", data.seats[id])
         if (data.seats[id]) {
             setData((prev) => {
                 let updatedSeats = { ...prev.seats };

@@ -9,7 +9,7 @@ export default function Download({
   setResult,
   images,
   filename,
-  elementSSMapping,
+  elementSSMapping
 }: {
   result: Data;
   setResult: Dispatch<SetStateAction<Data>>;

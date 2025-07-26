@@ -6,6 +6,7 @@ import Section from "./Section/Section";
 export default function SeatMap({
     data,
     setData,
+    background
 }) {
 
     const { svgRef, setScale, zoomRef } = useActions();
@@ -32,9 +33,9 @@ export default function SeatMap({
                     id='primary-svg'
                     data-component='svg'
                     aria-hidden='true'
-                    viewBox={`0 0 10240 7680`} // Change to dynamic viewBox
+                    viewBox={`0 0 3000 2250`} // Change to dynamic viewBox
                     className="map_svg"
-                    // style={{ backgroundImage: `url(${map})` }} // Change to dynamic svg
+                    style={{ backgroundImage: `url(${background})` }} // Change to dynamic svg
                 >
                     <g className='polygons'>
                         {data && Object.values(data.sections).map((section) => (

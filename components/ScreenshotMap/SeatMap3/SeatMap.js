@@ -7,6 +7,7 @@ import { Rows } from "./Rows";
 export default function SeatMap({
     data,
     selectedIds,
+    background
 }) {
     const { svgRef } = useActions();
 
@@ -24,7 +25,8 @@ export default function SeatMap({
                     id='primary-svg'
                     data-component='svg'
                     aria-hidden='true'
-                    viewBox={`0 0 10240 7680`} // Change to dynamic viewBox
+                    viewBox={`0 0 3000 2250`} // Change to dynamic viewBox
+                    style={{ backgroundImage: `url(${background})` }} // Change to dynamic svg
                     className="map_svg"
                 >
                     <Sections

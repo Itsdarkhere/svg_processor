@@ -3,12 +3,13 @@ import { Stage, Layer, Rect, Path } from 'react-konva';
 import './glMap.scss'
 export default function GLMap({
     data,
+    background
 }) {
     console.log(data);
     const desiredWidth = 608; // The width you want to fit your content into
     const desiredHeight = 708; // The height you want to fit your content into
-    const originalWidth = 10240; // Original content width
-    const originalHeight = 7680; // Original content height
+    const originalWidth = 3000; // Original content width
+    const originalHeight = 2250; // Original content height
 
     // Calculate scale factors
     const scaleX = desiredWidth / originalWidth;

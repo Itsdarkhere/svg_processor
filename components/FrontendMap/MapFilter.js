@@ -5,6 +5,7 @@ import { SeatMap } from './SeatMap2'
 export default function MapFilter({ 
     data, 
     setData, 
+    background
 }) {
     return (
         <div className='w-full h-full'>
@@ -12,6 +13,7 @@ export default function MapFilter({
                 <SeatMap
                     data={data}
                     setData={setData}
+                    background={background}
                 />
             </ActionsProvider>
         </div>

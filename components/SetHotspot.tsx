@@ -6,8 +6,8 @@ import SeatMap from "./HotspotMap/SeatMap/SeatMap";
 
 
 export default function SetHotspot(
-    { result, setResult, setHotspotSet }: 
-    { result: Data, setResult: Dispatch<SetStateAction<Data>>, setHotspotSet: Dispatch<SetStateAction<boolean>>}) {
+    { result, setResult, setHotspotSet, background }: 
+    { result: Data, setResult: Dispatch<SetStateAction<Data>>, setHotspotSet: Dispatch<SetStateAction<boolean>>, background: any }) {
     const activeTab = "scaling" // inventory
     const [floorsize, setFloorsize] = useState<number | null>(null);
 
@@ -34,6 +34,7 @@ export default function SetHotspot(
                             setData={setResult}
                             activeTab={activeTab}
                             floorsize={floorsize}
+                            background={background}
                         />
                     </ActionsProvider>
                 </div>

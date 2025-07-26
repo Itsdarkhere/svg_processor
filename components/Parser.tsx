@@ -13,11 +13,14 @@ export default function Parser({
   setUploaded,
   setResult,
   setFileName,
+  setBackground
 }: {
   setUploaded: Dispatch<SetStateAction<boolean>>;
   setResult: Dispatch<SetStateAction<Data>>;
   setFileName: Dispatch<SetStateAction<string>>;
+  setBackground: Dispatch<SetStateAction<any>>;
 }) {
+  const [backgroundFileName, setBackgroundFileName] = useState('');
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -40,47 +43,77 @@ export default function Parser({
     [key: string]: string[];
   }
 
-  const generateUUIDs = () => {
-    console.log("generate: ");
-    const uuidArrays: UUIDArrays = {};
+  const handleBackgroundUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-    // Generate 10 arrays
-    const il = [300, 300, 300, 300, 300];
-    for (let i: number = 0; i <= il.length; i++) {
-      console.log("genwl: ", il[i]);
-      const uuidArray: string[] = Array.from({ length: il[i] }, (): string =>
-        uuidv4()
-      );
-      uuidArrays[`array${i}`] = uuidArray;
+    // Validate file type
+    const validTypes = ['image/png'];
+    if (!validTypes.includes(file.type)) {
+      alert('Please upload a valid image file PNG!!!');
+      return;
     }
-    console.log("after loop");
 
-    // Format and log in a way that's easy to copy
-    const jsonString = JSON.stringify(uuidArrays, null, 2);
-    console.log("Copy the following JSON:");
-    console.log(jsonString);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const imageDataUrl = e.target?.result as string;
+      setBackground(imageDataUrl);
+      setBackgroundFileName(file.name);
+      console.log("Background image uploaded:", file.name);
+    };
+    reader.readAsDataURL(file); // Use readAsDataURL for images
+  };
 
-    // Also log a JavaScript object literal format for direct copying
-    console.log("\nOr copy as JavaScript object:");
-    console.log(`const uuidArrays = ${jsonString};`);
+  const clearBackground = () => {
+    setBackground(null);
+    setBackgroundFileName("");
+    // Reset the file input
+    const fileInput = document.getElementById('backgroundFile') as HTMLInputElement;
+    if (fileInput) fileInput.value = '';
   };
 
   return (
-    <div className='max-w-5xl flex flex-col justify-center items-center'>
-      <button
-        onClick={generateUUIDs}
-        className=' p-6 bg-white rounded-md text-black active:scale-95 outline-red-400'
-      >
-        GENERATE UUIDS
-      </button>
-      <input
-        type='file'
-        name='svgFile'
-        id='svgFile'
-        accept='.svg'
-        onChange={handleFileUpload}
-        className='file-input w-full max-w-xs'
-      />
+    <div className='max-w-5xl flex flex-col justify-center items-center gap-6'>
+      {/* SVG File Upload */}
+      <div className="flex flex-col items-center gap-2">
+        <label htmlFor="svgFile" className="text-sm font-medium">
+          Upload SVG File:
+        </label>
+        <input
+          type='file'
+          name='svgFile'
+          id='svgFile'
+          accept='.svg'
+          onChange={handleFileUpload}
+          className='file-input w-full max-w-xs'
+        />
+      </div>
+
+      {/* Background Image Upload */}
+      <div className="flex flex-col items-center gap-2">
+        <label htmlFor="backgroundFile" className="text-sm font-medium">
+          Upload Background Image ( .png ):
+        </label>
+        <input
+          type='file'
+          name='backgroundFile'
+          id='backgroundFile'
+          accept='image/*'
+          onChange={handleBackgroundUpload}
+          className='file-input w-full max-w-xs'
+        />
+        {backgroundFileName && (
+          <div className="flex items-center gap-2 text-sm">
+            <span className="text-green-600">✓ {backgroundFileName}</span>
+            <button
+              onClick={clearBackground}
+              className="text-red-500 hover:text-red-700 text-xs"
+            >
+              Remove
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
