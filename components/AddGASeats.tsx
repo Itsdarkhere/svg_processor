@@ -23,18 +23,31 @@ export default function AddGASeats({
   // Initialize seat counts and section names when result changes
   useEffect(() => {
     if (result?.sections) {
-      const initialCounts: { [key: string]: number } = {};
-      const initialNames: { [key: string]: string } = {};
-      
-      Object.entries(result.sections).forEach(([sectionKey, section]) => {
-        if (!section.zoomable) {
-          initialCounts[sectionKey] = 0;
-          initialNames[sectionKey] = section.sectionName || '';
-        }
+      setSeatCounts(prev => {
+        const newCounts: { [key: string]: number } = {};
+        
+        Object.entries(result.sections).forEach(([sectionKey, section]) => {
+          if (!section.zoomable) {
+            // Keep existing value if it exists, otherwise initialize to 0
+            newCounts[sectionKey] = prev[sectionKey] ?? 0;
+          }
+        });
+        
+        return newCounts;
       });
       
-      setSeatCounts(initialCounts);
-      setSectionNames(initialNames);
+      setSectionNames(prev => {
+        const newNames: { [key: string]: string } = {};
+        
+        Object.entries(result.sections).forEach(([sectionKey, section]) => {
+          if (!section.zoomable) {
+            // Keep existing value if it exists, otherwise use section name or empty string
+            newNames[sectionKey] = prev[sectionKey] ?? section.sectionName ?? '';
+          }
+        });
+        
+        return newNames;
+      });
     }
   }, [result]);
 
