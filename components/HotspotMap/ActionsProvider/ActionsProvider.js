@@ -166,10 +166,10 @@ export const ActionsProvider = ({ children, data, setData, setHotspotSet }) => {
                 selectingIndex === index && "ring-4 ring-indigo-600"
               } p-5 bg-white text-zinc-800 rounded-lg flex flex-row justify-between`}
             >
-              <div className='flex flex-col text-start max-w-lg'>
+              <div className='flex flex-col text-start w-full'>
                 <h6 className=''>Select sections in floor {index}</h6>
                 <div>Selected: </div>
-                <div className='flex flex-row gap-2 flex-wrap mt-6'>
+                <div className='flex flex-row gap-2 flex-wrap mt-6 w-full'>
                   {sectionsInFloor[index]
                     ? sectionsInFloor[index].map((section, sectionIndex) => (
                         <span
